@@ -1,3 +1,4 @@
+# Sunpath
 This document contains notes for the operation and technical details of
 the dashboard and application.
 
@@ -26,4 +27,4 @@ How to Run:
 Requirements
 -requirements.txt includes all the modules and dependencies required for the
 -flask app to run
-# Sunpath
+
