@@ -2,10 +2,10 @@ plotly==2.0.10
 python==2.7.12
 pandas==0.22.0
 pandas-datareader==0.3.0.post0
-dash==0.17.4
-dash-renderer==0.7.2
-dash-html-components==0.6.0
-dash-core-components==0.5.0
+dash==0.20.0
+dash-core-components==0.21.0rc1
+dash-html-components==0.8.0
+dash-renderer==0.11.3
 dash-table-experiments==0.6.0
 gunicorn==19.7.1
 flask==0.12

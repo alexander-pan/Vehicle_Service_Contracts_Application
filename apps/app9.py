@@ -7,7 +7,7 @@ from flask import Flask
 from flask_caching import Cache
 from collections import OrderedDict
 from pandas.tseries.offsets import *
-import pyodbc
+#import pyodbc
 import copy
 from app import app
 

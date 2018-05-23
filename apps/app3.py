@@ -6,7 +6,7 @@ import numpy as np
 from flask import Flask
 from flask_caching import Cache
 from collections import OrderedDict
-import pyodbc
+#import pyodbc
 import copy
 from app import app
 
