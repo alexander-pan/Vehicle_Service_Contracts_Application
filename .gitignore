@@ -1,5 +1,7 @@
 # user defined ignores 
 cache-directory/
+static/authorized_emails.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
