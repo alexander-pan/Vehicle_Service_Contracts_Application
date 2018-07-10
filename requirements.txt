@@ -28,7 +28,7 @@ pandas==0.22.0
 pandas-datareader==0.3.0.post0
 plotly==2.0.10
 PuLP==1.6.8
-pyodbc==4.0.22
+#pyodbc==4.0.22
 pyparsing==2.2.0
 python-dateutil==2.7.3
 pytz==2018.4
