@@ -14,7 +14,7 @@ class GoogleOAuth(Auth):
         app.server.config["GOOGLE_OAUTH_CLIENT_ID"] = "536104063772-c4e676skbqcvi9i2l7g4srtjuocs0l1o.apps.googleusercontent.com"
         app.server.config["GOOGLE_OAUTH_CLIENT_SECRET"] = "orOHRH6ndmB1KrjX8irHrDtd"
         google_bp = make_google_blueprint(
-            scope=["profile", "email"],
+            scope=["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"],
             offline=True,
             reprompt_consent=True,
             #client_id="536104063772-c4e676skbqcvi9i2l7g4srtjuocs0l1o.apps.googleusercontent.com",
