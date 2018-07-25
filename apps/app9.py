@@ -49,13 +49,13 @@ seller_options = [{'label': str(seller),
 P = np.zeros((25,25))
 for i in range(1,25):
     dfn = DF.loc[DF.Installments==i]
-    for j in range(1,25):
+    for j in range(0,25):
         if i < j:
             pass
         else:
             A = dfn.loc[(dfn.IsCancelled==1)
                         & (dfn.PaymentsMade==j)].shape[0]
-            B = dfn.loc[dfn.PaymentsMade==j].shape[0]
+            B = dfn.loc[dfn.PaymentsMade>=j].shape[0]
             if B == 0:
                 p = 0.0
             else:
