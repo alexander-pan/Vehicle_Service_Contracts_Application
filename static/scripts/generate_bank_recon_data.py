@@ -27,7 +27,7 @@ q8 = """select ClearDate,Vendor,GroupName, sum(PaymentAmount) as PaymntsAmt
         from SPAdmin.dbo.SPA_SPPaymentsStat
         group by Vendor,GroupName,ClearDate order by ClearDate,Vendor;"""
 q9 = """select ClearDate, sum(insurancereserve) as InsRsvAmt
-        from SPAdmin.dbo.SPA_Funded_Contracts group by cleardate;"""   
+        from SPAdmin.dbo.SPA_Funded_Contracts group by cleardate;"""
 q10 = """select ClearDate, PaidTo as Payee, DisburseType as GroupName, PaymentAmount as DepAmt
         from SPAdmin.dbo.SPA_SPDepositsStat order by ClearDate asc;"""
 
@@ -57,7 +57,7 @@ df11 = pd.read_sql(q11,cnxn)
 df12 = pd.read_sql(q12,cnxn)
 
 #App3 Data Tables
-df1.to_pickle('../data/SPA_SPBankingStats.pkl')
+df1.to_pickle('../data/SPA_SPBankingStat.pkl')
 df2.to_pickle('../data/SPA_SPDepositsStat.pkl')
 df3.to_pickle('../data/SPA_SPPlugStat.pkl')
 df4.to_pickle('../data/SPA_SPPaymentsStat.pkl')
