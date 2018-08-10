@@ -44,6 +44,7 @@ funder_options = [{'label': str(funder),
 seller_options = [{'label': str(seller),
                    'value': SELLERS[seller]}
                   for seller in SELLERS]
+seller_options.append({'label': 'ALL SELLERS', 'value': 1})
 
 layout = dict(
     autosize=True,
@@ -227,7 +228,7 @@ layout_page = html.Div([
                            'margin':10
                           }
                 ),
-                html.Label('Total Seller Advance Received',
+                html.Label('Total Seller Advance',
                     style={'fontSize':15,
                            'textAlign':'center'}),
 
@@ -474,7 +475,10 @@ def MonthlySales(df,output):
               Input('seller','value')])
 def update_AvgContracts(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
+        print seller
         return MonthlySales(dataframe,'total')
 
 @app.callback(Output('face_value','value'),
@@ -482,6 +486,8 @@ def update_AvgContracts(funder,seller):
               Input('seller','value')])
 def update_FaceValue(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return '${:,.0f}'.format(round(dataframe.AmountFinanced.sum(),2))
 
@@ -490,6 +496,8 @@ def update_FaceValue(funder,seller):
               Input('seller','value')])
 def update_AvgMonth(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return MonthlySales(dataframe,'mean')
 
@@ -498,6 +506,8 @@ def update_AvgMonth(funder,seller):
               Input('seller','value')])
 def update_AvgFaceValue(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return '${:,.0f}'.format(round(dataframe.AmountFinanced.mean(),2))
 
@@ -506,6 +516,8 @@ def update_AvgFaceValue(funder,seller):
               Input('seller','value')])
 def update_SellerAdvRec(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return '${:,.0f}'.format(round(dataframe.SellerAdvanceAmount.sum(),2))
 
@@ -514,6 +526,8 @@ def update_SellerAdvRec(funder,seller):
               Input('seller','value')])
 def update_AvgSold3Months(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return MonthlySales(dataframe,'mean_3months')
 
@@ -522,6 +536,8 @@ def update_AvgSold3Months(funder,seller):
               Input('seller','value')])
 def update_GrowthRate(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         return '{:,.0f}%'.format(MonthlySales(dataframe,'growth_rate'))
 
@@ -530,6 +546,8 @@ def update_GrowthRate(funder,seller):
               Input('seller','value')])
 def update_MonthlySales(funder,seller):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         layout_sales= copy.deepcopy(layout)
         x1_data,y1_data = MonthlySales(dataframe,'plot_complete')
@@ -567,6 +585,8 @@ def update_MonthlySales(funder,seller):
               Input('curve_list','values')])
 def update_cancel_curve(funder,seller,curve_list):
     if ((funder is not None) and (seller is not None)):
+        if 1 in seller:
+            seller = [SELLERS[x] for x in SELLERS]
         dataframe = getCohort(DF,seller,funder)
         layout_curve = copy.deepcopy(layout)
 
