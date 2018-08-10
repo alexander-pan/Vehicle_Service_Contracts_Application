@@ -11,6 +11,26 @@ from sunpath_dbcreds import server,database,username,password
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+DESCR_KEYS = {
+    'Administrator Funding' : 'Deposits',
+    'Insurance Reserve Funding' : 'Insurance',
+    'Paylink Chargeback Fee' : 'Customer Collections',
+    'Paylink Customer Collection' : 'Customer Collections',
+    'Paylink Customer Collection Reversal' : 'Customer Collections',
+    'Paylink Processing Fee' : 'Customer Collections',
+    'Paylink Processing Fee Reversal' : 'Customer Collections',
+    'Paylink Returned Payment Fee' : 'Customer Collections',
+    'RC (Debit Seller Wire)' : 'Deposits',
+    'Returned Premium - Admin' : 'Deposits',
+    'Returned Premium - Ins Reserve' : 'Deposits',
+    'Reverse Administrator Funding' : 'Payments',
+    'Reverse Insurance Reserve Funding' : 'Collections',
+    'Reverse Returned Premium - Admin' : 'Collections',
+    'Reverse Returned Premium - Ins Reserve' : 'Collections',
+    'Reverse Seller Funding' : 'Collections',
+    'Seller Funding' : 'Payments'
+}
+
 #Used in App3
 q1 = "select * from SPAdmin.dbo.SPA_FundingBankStat order by cleardate asc;"
 q2 = "select * from SPAdmin.dbo.SPA_SPDepositsStat order by cleardate asc;"
@@ -60,7 +80,13 @@ df9 = pd.read_sql(q9,cnxn)
 df10 = pd.read_sql(q10,cnxn)
 
 df11 = pd.read_sql(q11,cnxn)
+keys = pd.read_csv('./SunPath Type to Account Mapping.csv',index_col=0)
+keys = keys.to_dict()['Column for recon']
+df11['Category'] = df11['Type'].apply(lambda x: keys[x])
+
 df12 = pd.read_sql(q12,cnxn)
+df12['Amount'] = df12['TxAmount']*df12['PosOrNegTx']
+df12['Category'] = df12['TxDescription'].apply(lambda x: DESCR_KEYS[x])
 
 #App3 Data Tables
 df1.to_pickle('../data/SPA_SPBankingStat.pkl')
