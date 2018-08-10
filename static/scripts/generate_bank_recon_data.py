@@ -48,7 +48,13 @@ df4 = pd.read_sql(q4,cnxn)
 df5 = pd.read_sql(q6,cnxn)
 
 df6 = pd.read_sql(q6,cnxn)
+df6['ClearDate'] = pd.to_datetime(df6['ClearDate'],format="%m/%d/%y")
+df6['ClearDate'] = df6['ClearDate'].apply(lambda x: x.date())
+
 df7 = pd.read_sql(q7,cnxn)
+df7['ClearDate'] = pd.to_datetime(df7['ClearDate'],format="%m/%d/%y")
+df7['ClearDate'] = df7['ClearDate'].apply(lambda x: x.date())
+
 df8 = pd.read_sql(q8,cnxn)
 df9 = pd.read_sql(q9,cnxn)
 df10 = pd.read_sql(q10,cnxn)
