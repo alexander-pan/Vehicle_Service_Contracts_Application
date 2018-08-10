@@ -19,7 +19,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 #Setup App
 server = Flask(__name__)
 
-app = dash.Dash(__name__,server=server,url_base_pathname='/', auth='auth')
+app = dash.Dash(__name__,server=server,url_base_pathname='/')
 auth = GoogleOAuth(app, authorized_emails)
 app.css.append_css({"external_url":"static/dashboard.css"})
 app.config.suppress_callback_exceptions = True

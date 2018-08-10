@@ -1,2 +1,1 @@
-authorized_emails = ["alex.pan@statusquota.co",
-                     "avpan090@gmail.com"]
+authorized_emails = ["alex.pan@statusquota.com", "spftestapp123@gmail.com","spfadmn.test@gmail.com"]
