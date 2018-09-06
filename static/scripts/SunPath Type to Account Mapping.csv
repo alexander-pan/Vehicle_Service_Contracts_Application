@@ -1,0 +1,21 @@
+Type,Column for recon
+Consumer Pmt Receipts frm Paylink,Deposits
+Consumer Pmts Transfer In from SPF,Deposits
+Returned Premiums from SPA,Deposits
+Transfer Out to Simplicity - Consumer Pmts,Deposits
+Insurance Funding to SPA,Insurance
+Administration Funding to SPA,Payments
+Seller Funding Payment,Payments
+Seller Funding Payments,Payments
+Balance,Plug
+Bank Fees,Plug
+Interest Expense - revolving,Plug
+Returned Premium Reversal,Plug
+Revolving Loan Drawdown,Plug
+Revolving Loan Payment,Plug
+Subordinated Loan Receipt,Plug
+Taxes,Plug
+Taxes/State Fees,Plug
+Transfer In from Collateral,Plug
+Transfer Out to Operating,Plug
+Transfer to Operating,Plug
