@@ -1,3 +1,8 @@
+# To Update
+- Scripts to automate data at any specificed scheduled time
+- The data be compatible with app in case anything changed (current issue)
+- crontab on server/machine to schedule scripts to run (need to talk to Joe)
+
 # Sunpath
 This document contains notes for the operation and technical details of
 the dashboard and application.
