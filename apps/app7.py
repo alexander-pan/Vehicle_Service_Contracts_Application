@@ -44,6 +44,7 @@ funder_options = [{'label': str(funder),
 seller_options = [{'label': str(seller),
                    'value': SELLERS[seller]}
                   for seller in SELLERS]
+seller_options = sorted(seller_options)
 seller_options.append({'label': 'ALL SELLERS', 'value': 1})
 
 layout = dict(
@@ -675,7 +676,3 @@ def update_cancel_curve(funder,seller,curve_list):
         layout_curve['height'] = 400
         fig = go.Figure(data=datas,layout=layout_curve)
         return fig
-
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)

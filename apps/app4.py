@@ -300,7 +300,3 @@ def updateSPFPrem(start_date,end_date):
         df = df5.loc[(df5['ClearDate']>=start_date) & (df5['ClearDate']<=end_date)]
         df = df.round(2)
         return df.to_dict('records',into=OrderedDict)
-
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)

@@ -482,6 +482,3 @@ def updateCollections(start_date,end_date):
         end_date = dt.strptime(end_date,'%Y-%m-%d').date()
         df = getTable(DF2,'Collections',start_date,end_date)
         return df.to_dict('records',into=OrderedDict)
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)

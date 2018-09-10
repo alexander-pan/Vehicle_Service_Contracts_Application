@@ -44,6 +44,7 @@ funder_options = [{'label': str(funder),
 seller_options = [{'label': str(seller),
                    'value': SELLERS[seller]}
                   for seller in SELLERS]
+seller_options = sorted(seller_options)
 
 #Calculate probability distribution
 P = np.zeros((25,25))
@@ -957,6 +958,3 @@ def update_CohortTable5(funder,seller,fee,rows):
         return result.to_dict('records',into=OrderedDict)
     else:
         return pd.DataFrame().to_dict('records')
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)

@@ -447,7 +447,3 @@ def updateSunpathTable(start_date,end_date,viewtype):
             sunpathDF = sunpathDF.round(2)
             sunpathDF['Month'].fillna('Total',inplace=True)
         return sunpathDF.to_dict('records',into=OrderedDict)
-
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)

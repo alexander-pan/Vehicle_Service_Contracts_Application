@@ -344,6 +344,3 @@ def updateBankTable2(start_date,end_date,viewtype):
             bankDF = bankDF.round(2)
             bankDF['Month'].fillna('Total',inplace=True)
         return bankDF.to_dict('records',into=OrderedDict)
-#Main
-#if __name__ == '__main__':
-#    app.run_server(debug=True)
