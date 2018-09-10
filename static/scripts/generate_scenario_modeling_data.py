@@ -192,3 +192,16 @@ for i in range(1,25):
 
 final_result = buildCohortTable3(df1,50)
 final_result.to_pickle('../data/SPF_AVERAGE.pkl')
+
+q3 = """
+SELECT
+FTL.PolicyNumber,FTL.TxDate, FTC.TxDescription,
+FTL.TxAmount * FTC.PosOrNegTx AS NetTransaction
+FROM dbo.SPF_Funding_Transaction_Log AS FTL
+LEFT JOIN dbo.SPF_Funding_Transaction_Codes AS FTC
+ON FTL.TxCode = FTC.TxCode
+WHERE (FTL.CashTx = 1) AND (FTL.PolicyNumber IS NOT NULL)
+ORDER BY FTL.PolicyNumber, FTL.TxDate;
+"""
+df3 = pd.read_sql(q1,cnxn)
+df3.to_pickle('../data/TXLog_Cashflows.pkl')

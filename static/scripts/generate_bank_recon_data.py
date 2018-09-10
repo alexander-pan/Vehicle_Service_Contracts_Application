@@ -32,7 +32,7 @@ DESCR_KEYS = {
 }
 
 #Used in App3
-q1 = "select * from SPAdmin.dbo.SPA_FundingBankStat order by cleardate asc;"
+q1 = "select * from SPAdmin.dbo.SPA_SPBankingStat order by cleardate asc;"
 q2 = "select * from SPAdmin.dbo.SPA_SPDepositsStat order by cleardate asc;"
 q3 = "select * from SPAdmin.dbo.SPA_SPPlugStat order by cleardate asc;"
 q4 = "select * from SPAdmin.dbo.SPA_SPPaymentsStat where groupname='Packs' order by cleardate asc;"
@@ -65,7 +65,7 @@ df1 = pd.read_sql(q1,cnxn)
 df2 = pd.read_sql(q2,cnxn)
 df3 = pd.read_sql(q3,cnxn)
 df4 = pd.read_sql(q4,cnxn)
-df5 = pd.read_sql(q6,cnxn)
+df5 = pd.read_sql(q5,cnxn)
 
 df6 = pd.read_sql(q6,cnxn)
 df6['ClearDate'] = pd.to_datetime(df6['ClearDate'],format="%m/%d/%y")

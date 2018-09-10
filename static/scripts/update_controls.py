@@ -65,9 +65,9 @@ with open('/Users/alexanderpan/Projects/Statusquota/sunpath/application/apps/con
     count = 1
     for k,v in sorted(FUNDERS.iteritems()):
         if count == len(FUNDERS):
-            handle.write("'%s': '%s'\n" % (k,v))
+            handle.write("'%s': %d\n" % (k,v))
         else:
-            handle.write("'%s': '%s',\n" % (k,v))
+            handle.write("'%s': %d,\n" % (k,v))
         count+=1
     handle.write('}\n\n')
 
