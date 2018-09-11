@@ -25,6 +25,7 @@ from controls import SELLERS, FUNDERS, TXCODES
 DF = pd.read_pickle('./static/data/Scenario_Modeling_INFO.pkl')
 DF_PER = pd.read_pickle('./static/data/Funding_Fee_Percents.pkl')
 DF_SPFAVG = pd.read_pickle('./static/data/SPF_AVERAGE.pkl')
+DF_EXPVAL = pd.read_pickle('./static/data/ExpectedValues.pkl')
 
 #Setup App
 app.config.suppress_callback_exceptions = True
@@ -442,7 +443,7 @@ def ExpectedValue(N,j,amount,row):
         n += 1
     return value
     """
-    return 1
+    return DF_EXPVAL.loc[DF_EXPVAl.PolicyNumber==row.PolicyNumber].ExpectedValue.values[0]
 @cache.memoize()
 def getTotalNetAmount(df,fee):
     dataframe = df.copy()
