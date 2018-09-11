@@ -32,7 +32,7 @@ class GoogleOAuth(Auth):
         assert resp.ok, resp.text
 
         email = resp.json()["emails"][0]["value"]
-        print email
+        #print email
         if email in self.authorized_emails:
             # send to index
             return True
