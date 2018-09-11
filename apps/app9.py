@@ -402,6 +402,7 @@ def MonthlySales(df,output):
 #amount = current installment amount
 @cache.memoize()
 def ExpectedValue(N,j,amount,row):
+    """
     value = 0.0
     value2 = 0.0
     n = j-1
@@ -440,7 +441,8 @@ def ExpectedValue(N,j,amount,row):
         #print amount,p1,RP_i,p2, amount*p1 + RP_i*p2
         n += 1
     return value
-
+    """
+    return 999
 @cache.memoize()
 def getTotalNetAmount(df,fee):
     dataframe = df.copy()
@@ -528,6 +530,7 @@ def calcNetHoldback(df1,df2,fee,output):
 
 @cache.memoize()
 def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
+    """
     #all completed, cancelled contracts
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
@@ -568,6 +571,8 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
 
     if output=='amount':
         return np.sum(holdback).round()
+    """
+    return 50
 
 @cache.memoize()
 def buildCohortTable(df,fee):

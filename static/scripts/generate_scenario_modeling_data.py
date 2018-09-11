@@ -16,7 +16,7 @@ cursor = cnxn.cursor()
 
 #For App7,9,10
 q1 = """
-select top 2000 de.PolicyNumber, de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
+select de.PolicyNumber, de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
 de.AmountFinanced,sfd.TotalSalesPrice,de.DiscountAmount,sfd.SellerCost,
 CancelReserveAmount,SellerAdvanceAmount,AdminPortionAmt,InsReservePortionAmt,
 de.CurrentInstallmentAmount,de.PaymentsMade,de.PaymentsRemaining,de.PaymentsMade+de.PaymentsRemaining as Installments,
@@ -29,7 +29,7 @@ where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments;
 """
 df1 = pd.read_sql(q1,cnxn)
 df1.drop_duplicates('PolicyNumber',inplace=True)
-df1.to_pickle('../data/Scenario_Modeling_INFO_ts.pkl')
+df1.to_pickle('../data/Scenario_Modeling_INFO.pkl')
 
 q2 = """
 select SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
