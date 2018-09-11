@@ -443,7 +443,7 @@ def ExpectedValue(N,j,amount,row):
         n += 1
     return value
     """
-    return DF_EXPVAL.loc[DF_EXPVAl.PolicyNumber==row.PolicyNumber].ExpectedValue.values[0]
+    return DF_EXPVAL.loc[DF_EXPVAL.PolicyNumber==row.PolicyNumber].ExpectedValue.values[0]
 @cache.memoize()
 def getTotalNetAmount(df,fee):
     dataframe = df.copy()
