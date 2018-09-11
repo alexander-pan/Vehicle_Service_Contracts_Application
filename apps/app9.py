@@ -530,11 +530,11 @@ def calcNetHoldback(df1,df2,fee,output):
 
 @cache.memoize()
 def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
-    """
     #all completed, cancelled contracts
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
     funder = []
+    print df1.shape 
     for i,row in df1.iterrows():
         installments = row.PaymentsMade
         eff_date = row.EffectiveDate
@@ -571,8 +571,6 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
 
     if output=='amount':
         return np.sum(holdback).round()
-    """
-    return 50
 
 @cache.memoize()
 def buildCohortTable(df,fee):
