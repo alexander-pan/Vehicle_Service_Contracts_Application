@@ -537,7 +537,6 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
     print df1.shape
     count = 0
     for i,row in df1.iterrows():
-        """
         installments = row.PaymentsMade
         eff_date = row.EffectiveDate
         vendor = row.SellerName
@@ -568,10 +567,9 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
         if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
             deficit = deficit + row.ReturnedPremium
         elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
+            deficit = deficit #+ ExpectedValue(term,installments,installAmt,row)
         holdback.append(deficit)
-        """
-        holdback.append(1)
+
     if output=='amount':
         return np.sum(holdback).round()
 
