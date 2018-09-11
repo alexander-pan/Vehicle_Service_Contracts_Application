@@ -534,7 +534,7 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
     funder = []
-    print df1.shape 
+    print df1.shape
     for i,row in df1.iterrows():
         installments = row.PaymentsMade
         eff_date = row.EffectiveDate
@@ -835,6 +835,7 @@ def getOutput2(df,dff,fee):
             dataframe = dataframe.loc[(dataframe.Installments>=19) & (dataframe.Installments<=24)]
 
         N_contracts = dataframe.shape[0]
+        print N_contracts
         D = row['Discount Amt %']
         H = row['Cancel Reserve %']
         N = row['Contracts,Month']
