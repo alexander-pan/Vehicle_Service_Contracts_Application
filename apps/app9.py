@@ -442,7 +442,7 @@ def ExpectedValue(N,j,amount,row):
         n += 1
     return value
     """
-    return 999
+    return 1
 @cache.memoize()
 def getTotalNetAmount(df,fee):
     dataframe = df.copy()
@@ -567,7 +567,7 @@ def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
         if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
             deficit = deficit + row.ReturnedPremium
         elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit #+ ExpectedValue(term,installments,installAmt,row)
+            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
         holdback.append(deficit)
 
     if output=='amount':
