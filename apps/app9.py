@@ -26,7 +26,7 @@ DF = pd.read_pickle('./static/data/Scenario_Modeling_INFO.pkl')
 DF_PER = pd.read_pickle('./static/data/Funding_Fee_Percents.pkl')
 DF_SPFAVG = pd.read_pickle('./static/data/SPF_AVERAGE.pkl')
 DF_EXPVAL = pd.read_pickle('./static/data/ExpectedValues.pkl')
-DF_VAR = pd.read_pickle('./Scenario_Modeling_Variable_INFO.pkl')
+DF_VAR = pd.read_pickle('./static/data/Scenario_Modeling_Variable_INFO.pkl')
 
 #Setup App
 app.config.suppress_callback_exceptions = True
