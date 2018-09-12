@@ -16,16 +16,19 @@ cursor = cnxn.cursor()
 
 #For App7,9,10
 q1 = """
-select de.PolicyNumber, de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
-de.AmountFinanced,sfd.TotalSalesPrice,de.DiscountAmount,sfd.SellerCost,
-CancelReserveAmount,SellerAdvanceAmount,AdminPortionAmt,InsReservePortionAmt,
-de.CurrentInstallmentAmount,de.PaymentsMade,de.PaymentsRemaining,de.PaymentsMade+de.PaymentsRemaining as Installments,
-sfd.DownPayment,de.ReturnedPremium,de.ReturnedCommission,se.termmonths/12.0*365 as TermDays
-from dbo.daily_extract as de
-join  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
-join dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
-join dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
-where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments;
+select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
+  max(de.AmountFinanced) as AmountFinanced,max(sfd.TotalSalesPrice) as TotalSalePrice,max(de.DiscountAmount) as DiscountAmount,max(sfd.SellerCost) as SellerCost,
+  max(CancelReserveAmount) as CancelReserveAmount,max(SellerAdvanceAmount) as SellerAdvanceAmount,
+  max(AdminPortionAmt) as AdminPortionAmt,max(InsReservePortionAmt) as InsReservePortionAmt,
+  max(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,max(de.PaymentsMade) as PaymentsMade,max(de.PaymentsRemaining) as PaymentsRemaining,
+  max(de.PaymentsMade+de.PaymentsRemaining) as Installments,
+  max(sfd.DownPayment) as DownPayment,max(de.ReturnedPremium) as ReturnedPremium,max(de.ReturnedCommission) as ReturnedCommission,max(se.termmonths/12.0*365) as TermDays
+  from dbo.daily_extract as de
+  join  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
+  join dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
+  join dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
+  where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+  group by de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName;
 """
 df1 = pd.read_sql(q1,cnxn)
 df1.drop_duplicates('PolicyNumber',inplace=True)
@@ -203,5 +206,85 @@ ON FTL.TxCode = FTC.TxCode
 WHERE (FTL.CashTx = 1) AND (FTL.PolicyNumber IS NOT NULL)
 ORDER BY FTL.PolicyNumber, FTL.TxDate;
 """
-df3 = pd.read_sql(q1,cnxn)
+df3 = pd.read_sql(q3,cnxn)
 df3.to_pickle('../data/TXLog_Cashflows.pkl')
+
+q4 = """
+with scenario_info as (
+  select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
+  max(de.AmountFinanced) as AmountFinanced,max(sfd.TotalSalesPrice) as TotalSalePrice,max(de.DiscountAmount) as DiscountAmount,max(sfd.SellerCost) as SellerCost,
+  max(CancelReserveAmount) as CancelReserveAmount,max(SellerAdvanceAmount) as SellerAdvanceAmount,
+  max(AdminPortionAmt) as AdminPortionAmt,max(InsReservePortionAmt) as InsReservePortionAmt,
+  max(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,max(de.PaymentsMade) as PaymentsMade,max(de.PaymentsRemaining) as PaymentsRemaining,
+  max(de.PaymentsMade+de.PaymentsRemaining) as Installments,
+  max(sfd.DownPayment) as DownPayment,max(de.ReturnedPremium) as ReturnedPremium,max(de.ReturnedCommission) as ReturnedCommission,max(se.termmonths/12.0*365) as TermDays
+  from dbo.daily_extract as de
+  join  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
+  join dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
+  join dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
+  where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+  group by de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName
+),
+
+funding_fees as (
+  select SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
+  from dbo.seller_info_funding_approved_partners as df1
+  join dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunPathSellerCode
+),
+
+txcodes as (
+  select distinct SunPathSellerCode,SunPathAccountingCode,SellerName
+  from dbo.daily_extract as t1
+  join dbo.seller_funding_data as t2
+  on t1.PolicyNumber = t2.PolicyNumber
+  join dbo.seller_info_funding_approved_partners as t3
+  on t1.sellercode = t3.paylinksellercode
+),
+
+rates as (
+  select SellerName,
+  Installments,
+  CancelPercentage
+  from funding_fees
+  inner join txcodes on funding_fees.SunPathAccountingCode = txcodes.SunPathAccountingCode
+),
+
+info as (
+  select PolicyNumber, CancelPercentage, EffectiveDate,TermDays,
+  case
+    when (CancelDate is null) then LastPaymentDate
+    else CancelDate
+  end as cancel_date
+  from scenario_info as t1
+  inner join rates as t2
+  on t1.SellerName =t2.SellerName and t1.PaymentsMade = t2.Installments
+),
+
+calculations as (
+  select PolicyNumber,
+  CancelPercentage as rate,
+  datediff(day,EffectiveDate,cancel_date) as day_utilized,
+  datediff(day,EffectiveDate,cancel_date)/TermDays as VUR
+  from info
+),
+
+variables as (
+  select t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
+  case
+    when IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
+    when IsCancelled=0 and PaymentsRemaining!=0 then null
+    else 0.0
+  end as end_contract_amt,
+  day_utilized,VUR,(case when IsCancelled=1 then rate else 0.0 end) as rate,
+  CurrentInstallmentAmount * Installments as payment_plan_amount,
+  CurrentInstallmentAmount * PaymentsMade as total_install_rec,
+  round((1-VUR)*AdminPortionAmt,2) as Amt_Owed_SPF_PreFee,
+  round((1-VUR)*InsReservePortionAmt,2) as Amt_Owed_INS
+  from scenario_info as t1 inner join calculations as t2
+  on t1.PolicyNumber=t2.PolicyNumber
+)
+
+select * from variables;
+"""
+df4 = pd.read_sql(q4,cnxn)
+df4.to_pickle('../data/Scenario_Modeling_Variable_INFO.pkl')
