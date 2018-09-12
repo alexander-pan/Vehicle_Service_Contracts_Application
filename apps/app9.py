@@ -325,7 +325,7 @@ def getEPRCohort(df):
         term = row.Installments
         amt = row.CurrentInstallmentAmount
         paymentsMade = row.PaymentsMade
-        total += ExpectedValue(term,paymentsMade,amt,row)
+        total += ExpectedValue(row.PolicyNumber)
     return round(total)
 
 @cache.memoize()
@@ -485,14 +485,14 @@ def calcNetHoldback(df1,df2,fee,output):
         if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
             deficit = deficit + row.ReturnedPremium
         elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
+            deficit = deficit + ExpectedValue(row.PolicyNumber)
         holdback.append(deficit)
 
     if output=='amount':
         return np.sum(holdback).round()
 
 @cache.memoize()
-def calcNetHoldbackPerContract2(df1,fee,output,cancel_reserve,discount_amt):
+def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     #all completed, cancelled contracts
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
@@ -510,7 +510,7 @@ def calcNetHoldbackPerContract2(df1,fee,output,cancel_reserve,discount_amt):
     cancel_comp = df.loc[~df.end_contract_amt.isnull()]
     opened = opened.copy()
     cancel_comp = cancel_comp.copy()
-    opened['holdback'] = opened.deficit + [ExpectedValue2(x) for x in opened.PolicyNumber]
+    opened['holdback'] = opened.deficit + [ExpectedValue(x) for x in opened.PolicyNumber]
     cancel_comp['holdback'] = cancel_comp.deficit + cancel_comp.end_contract_amt
 
     df = pd.concat([opened,cancel_comp],ignore_index=True)
