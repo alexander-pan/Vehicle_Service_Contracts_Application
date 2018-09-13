@@ -773,7 +773,7 @@ def update_AvgContracts(funder,seller):
 def update_CohortTable(funder,seller,fee):
     if ((funder is not None) and (seller is not None)):
         #core dataframe
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
         final_result = buildCohortTable(dataframe,fee)
         return final_result.to_dict('records',into=OrderedDict)
 
@@ -784,7 +784,7 @@ def update_CohortTable(funder,seller,fee):
 def update_CohortTable2(funder,seller,fee):
     if ((funder is not None) and (seller is not None)):
         #core dataframe
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
         result = buildCohortTable2(dataframe,fee)
         columns = ['Installment Terms','Cancel Reserve %','Discount Amt %']
         return result[columns].to_dict('records',into=OrderedDict)
