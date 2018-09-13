@@ -272,7 +272,8 @@ calculations as (
 
 variables as (
   select t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
-  CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,DiscountAmount,CancelReserveAmount,
+  CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
+  DiscountAmount,CancelReserveAmount,SellerAdvanceAmount,
   case
     when IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
     when IsCancelled=0 and PaymentsRemaining!=0 then null

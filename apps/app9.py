@@ -618,6 +618,7 @@ def getCohortRowStats(df,fee,cohort):
             return row
     else:
         return (cohort,0,0,0,0,0)
+
 """Function gets row stats """
 """Used In: buildCohortTable2"""
 @cache.memoize()

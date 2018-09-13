@@ -25,7 +25,8 @@ from controls import SELLERS, FUNDERS, TXCODES
 DF = pd.read_pickle('./static/data/Scenario_Modeling_INFO.pkl')
 DF_PER = pd.read_pickle('./static/data/Funding_Fee_Percents.pkl')
 DF_SPFAVG = pd.read_pickle('./static/data/SPF_AVERAGE.pkl')
-
+DF_EXPVAL = pd.read_pickle('./static/data/ExpectedValues.pkl')
+DF_VAR = pd.read_pickle('./static/data/Scenario_Modeling_Variable_INFO.pkl')
 
 #Setup App
 app.config.suppress_callback_exceptions = True
@@ -283,6 +284,8 @@ layout_page = html.Div([
 ],style={'margin-left':40,'margin-right':40})
 
 #FUNCTIONS
+"""This functions grabs the data based on seller and funder selectiions"""
+"""Used In: all callbacks """
 @cache.memoize()
 def getCohort(df,seller,funder):
     dataframe = []
@@ -291,6 +294,8 @@ def getCohort(df,seller,funder):
             dataframe.append(df.loc[(df.SellerName==vendor) & (df.FundCo==fundee)])
     return pd.concat(dataframe)
 
+"""grabs all the contracts in the cohort range"""
+"""Used In: getOutput(),getOutput2() """
 @cache.memoize()
 def getCohortSPFAVG(df,cohort):
     dataframe = df.copy()
@@ -308,6 +313,8 @@ def getCohortSPFAVG(df,cohort):
         dataframe = dataframe.loc[(dataframe.Installments>=19) & (dataframe.Installments<=24)]
     return dataframe
 
+"""Calculates monthly sales volume"""
+"""Used In: update_AvgContracts"""
 @cache.memoize()
 #Monthly Sales Volume
 def MonthlySales(df,output):
@@ -331,48 +338,17 @@ def MonthlySales(df,output):
                 months[key] = 1
         return int(np.mean(months.values()[-3:]).round())
 
+"""Looks for the Expected Value using contract policynumber, calculations done
+beforehand"""
+"""Used In: getEPRCohort(),calcNetHoldback(),calcNetHoldbackPerContract() """
 #for N = Installment Term Total, j = how much has been paid currently,
 #amount = current installment amount
 @cache.memoize()
-def ExpectedValue(N,j,amount,row):
-    value = 0.0
-    value2 = 0.0
-    n = j-1
-    if n % 3 == 0:
-        prev_date = (row.LastPaymentDate + BDay(25)).date()
-    else:
-        prev_date = (row.LastPaymentDate + BDay(20)).date()
-    for i in range(j+1,N+1):
-        p1 = 1.0
-        p2 = 1.0
-        for k in range(j+1,i+1):
-            p1 = p1 * P[N][k]
+def ExpectedValue(policy):
+    return DF_EXPVAL.loc[DF_EXPVAL.PolicyNumber==policy].ExpectedValue.values[0]
 
-            if k != i:
-                p2 = p2 * P[N][k]
-            elif k == i:
-                p2 = p2 * (1-P[N][k])
-
-        #value = value + amount * P[N][i]
-        if n % 3 == 0:
-            due_date = (prev_date + BDay(25)).date()
-        else:
-            due_date = (prev_date + BDay(20)).date()
-        prev_date = due_date
-
-        #calculate returned premium
-        num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
-        den = row.TermDays
-        RP = (num/den*row.SellerCost)-50
-        if N-i != 0:
-            RP_i = RP*(N-i)/N
-        else:
-            RP_i = 0.0
-        value = value + amount*p1 + RP_i*p2
-        #print amount,p1,RP_i,p2, amount*p1 + RP_i*p2
-        n += 1
-    return value
-
+"""Gets the total net amount"""
+"""Used In: update_NetDeficit"""
 @cache.memoize()
 def getTotalNetAmount(df,fee):
     dataframe = df.copy()
@@ -384,6 +360,8 @@ def getTotalNetAmount(df,fee):
         net_amount = net_amount + getCohortNetAmount(dataframe,fee,terms)
     return net_amount
 
+"""gets cohort's net amount and calculates netholdback if contracts > 75"""
+"""Used In: getTotalNetAmount()"""
 @cache.memoize()
 def getCohortNetAmount(df,fee,cohort):
     dataframe = df.copy()
@@ -402,7 +380,7 @@ def getCohortNetAmount(df,fee,cohort):
 
     if not dataframe.empty:
         if dataframe.shape[0] >= 75:
-            net_amt = round(calcNetHoldback(dataframe,DF_PER,fee,'amount'))
+            net_amt = round(calcNetHoldback(dataframe,fee,'amount'))
             return net_amt
         else:
             df1 = DF_SPFAVG.loc[DF_SPFAVG['Installment Terms']==cohort]
@@ -413,94 +391,67 @@ def getCohortNetAmount(df,fee,cohort):
     else:
         return 0
 
+"""Revised Function, Calculates NetHoldback, uses DF_VAR as core datatable"""
+"""Used In: getCohortNetAmount(),getCohortRowStats(),getContracts()"""
 @cache.memoize()
-def calcNetHoldback(df1,df2,fee,output):
-    #all completed, cancelled,open contracts
+def calcNetHoldback(df1,fee,output):
+    #all completed, cancelled contracts
     holdback = []
     funder = []
-    for i,row in df1.iterrows():
-        installments = row.PaymentsMade
-        funding_fee = row.DiscountAmount
-        eff_date = row.EffectiveDate
-        vendor = row.SellerName
-        installAmt = row.CurrentInstallmentAmount
-        term = row.Installments
 
-        if row.CancelDate == None:
-            cancel_date = row.LastPaymentDate
-        else:
-            cancel_date = row.CancelDate
+    df = df1.copy()
+    df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
+    df['deficit'] = df.CancelReserveAmount - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + df.DiscountAmount - df.prorated_fee
 
-        if row.IsCancelled == 1:
-            rate = df2.loc[(df2['SunPathAccountingCode']==TXCODES[vendor][1])
-                       & (df2['Installments']==installments)].CancelPercentage
-        else:
-            rate = 0.0
+    #we split by adding returned premium for cancelled/completed
+    #or expected values for open contracts
+    opened = df.loc[df.end_contract_amt.isnull()]
+    cancel_comp = df.loc[~df.end_contract_amt.isnull()]
+    opened = opened.copy()
+    cancel_comp = cancel_comp.copy()
+    opened['holdback'] = opened.deficit + [ExpectedValue(x) for x in opened.PolicyNumber]
+    cancel_comp['holdback'] = cancel_comp.deficit + cancel_comp.end_contract_amt
 
-        day_utilized = (cancel_date-eff_date).days
-
-        VUR = day_utilized/row.TermDays
-        prorated_fee = float(rate * funding_fee)
-        payment_plan_amount = installAmt * term
-        cancel_reserve = row.CancelReserveAmount
-        total_install_rec = installAmt * installments
-        Amt_Owed_SPF = (1-VUR)*row.AdminPortionAmt-fee
-        Amt_Owed_INS = (1-VUR)*row.InsReservePortionAmt
-        deficit = cancel_reserve - payment_plan_amount + Amt_Owed_SPF + Amt_Owed_INS + funding_fee - prorated_fee + total_install_rec
-
-        #if specific contract either cancelled, completed, or open
-        if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
-            deficit = deficit + row.ReturnedPremium
-        elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
-        holdback.append(deficit)
+    df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        return np.sum(holdback).round()
+        return df.holdback.sum()
+    else:
+        return "Error"
 
+"""Revised Function, Calculates the NetHoldback to be used for each contract"""
+"""Used In: getOutput(),getOutput2()"""
 @cache.memoize()
-def calcNetHoldbackPerContract(df1,df2,fee,output,cancel_reserve,discount_amt):
+def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     #all completed, cancelled contracts
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
     funder = []
-    for i,row in df1.iterrows():
-        installments = row.PaymentsMade
-        eff_date = row.EffectiveDate
-        vendor = row.SellerName
-        installAmt = row.CurrentInstallmentAmount
-        term = row.Installments
-        if row.CancelDate == None:
-            cancel_date = row.LastPaymentDate
-        else:
-            cancel_date = row.CancelDate
+    print df1.shape
 
-        if row.IsCancelled == 1:
-            rate = df2.loc[(df2['SunPathAccountingCode']==TXCODES[vendor][1])
-                        & (df2['Installments']==installments)].CancelPercentage
-        else:
-            rate = 0.0
+    df = df1.copy()
+    df['prorated_fee'] = [round(float(x),2) for x in (df.rate * discount_amt)]
+    df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
+    df['deficit'] = cancel_reserve - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + discount_amt - df.prorated_fee
 
-        day_utilized = (cancel_date-eff_date).days
+    #we split by adding returned premium for cancelled/completed
+    #or expected values for open contracts
+    opened = df.loc[df.end_contract_amt.isnull()]
+    cancel_comp = df.loc[~df.end_contract_amt.isnull()]
+    opened = opened.copy()
+    cancel_comp = cancel_comp.copy()
+    opened['holdback'] = opened.deficit + [ExpectedValue(x) for x in opened.PolicyNumber]
+    cancel_comp['holdback'] = cancel_comp.deficit + cancel_comp.end_contract_amt
 
-        VUR = day_utilized/row.TermDays
-        prorated_fee = float(rate * discount_amt)
-        payment_plan_amount = installAmt * term
-        total_install_rec = installAmt * installments
-        Amt_Owed_SPF = (1-VUR)*row.AdminPortionAmt-fee
-        Amt_Owed_INS = (1-VUR)*row.InsReservePortionAmt
-        deficit = cancel_reserve - payment_plan_amount + Amt_Owed_SPF + Amt_Owed_INS + discount_amt - prorated_fee +total_install_rec
-
-        #if specific contract either cancelled, completed, or open
-        if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
-            deficit = deficit + row.ReturnedPremium
-        elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
-        holdback.append(deficit)
+    df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        return np.sum(holdback).round()
+        return df.holdback.sum()
+    else:
+        return "Error"
 
+"""Builds Main Summary, Cohort Tables"""
+"""Used In: update_CohortTable"""
 @cache.memoize()
 def buildCohortTable(df,fee):
     dataframe = df.copy()
@@ -520,6 +471,8 @@ def buildCohortTable(df,fee):
     final_result = result.append(totals)
     return final_result
 
+"""Builds the editable table, inputs are cancel reserve and discount amt percentages"""
+"""Used In: update_CohortTable2"""
 @cache.memoize()
 def buildCohortTable2(df,fee):
     dataframe = df.copy()
@@ -533,6 +486,8 @@ def buildCohortTable2(df,fee):
     result = pd.DataFrame(table,columns=columns)
     return result
 
+"""Function gets the CohortRow stats
+Used In: buildCohortTable()"""
 @cache.memoize()
 def getCohortRowStats(df,fee,cohort):
     dataframe = df.copy()
@@ -563,7 +518,7 @@ def getCohortRowStats(df,fee,cohort):
             contract_percent_sold = round(N_contracts*1.0/total*100,3)
             cancel_rsv = round(Z2,2)
             discount_amt = round(Z1,2)
-            net_amt = round(calcNetHoldback(dataframe,DF_PER,fee,'amount'))
+            net_amt = round(calcNetHoldback(dataframe,fee,'amount'))
 
             row = (cohort,N_contracts,contract_percent_sold,cancel_rsv,discount_amt,net_amt)
             return row
@@ -583,6 +538,8 @@ def getCohortRowStats(df,fee,cohort):
     else:
         return (cohort,0,0,0,0,0)
 
+"""Function gets row stats """
+"""Used In: buildCohortTable2"""
 @cache.memoize()
 def getCohortRowStats2(df,fee,cohort):
     dataframe = df.copy()
@@ -623,6 +580,9 @@ def getCohortRowStats2(df,fee,cohort):
     else:
         return (cohort,0.0,0.0)
 
+
+"""gets the contracts and rows to build editable table 2 """
+"""Used In: buildCohortTableOutput2"""
 @cache.memoize()
 def getContracts(df,fee,cohort):
     dataframe = df.copy()
@@ -649,7 +609,7 @@ def getContracts(df,fee,cohort):
             Z1 = (H/(H+S))
             Z2 = (D/(H+S))
             Z = Z1/AF*(H+S) + Z2/AF*(H+S)
-            net_amt = calcNetHoldback(dataframe,DF_PER,fee,'amount')
+            net_amt = calcNetHoldback(dataframe,fee,'amount')
             #print net_amt, Z*AF
             N = (abs(net_amt)/(Z*AF)/12).round()
 
@@ -676,6 +636,9 @@ def getContracts(df,fee,cohort):
     else:
         return (cohort,0.0,0.0,0)
 
+"""Builds the 2nd editable table, inputs are cancel reserve, discount amt percentages
+and contracts per month"""
+"""Used In: update_CohortTable4"""
 @cache.memoize()
 def buildCohortTableOutput2(df,fee):
     dataframe = df.copy()
@@ -688,6 +651,8 @@ def buildCohortTableOutput2(df,fee):
     result = pd.DataFrame(table,columns=columns)
     return result
 
+"""Outputs the results of the live data from cohort table 2"""
+"""Used In: update_CohortTable3"""
 @cache.memoize()
 def getOutput(df,dff,fee):
     table = []
@@ -717,20 +682,22 @@ def getOutput(df,dff,fee):
             if N_contracts < 75:
                 df1 = DF_SPFAVG.loc[DF_SPFAVG['Installment Terms']==cohort]
                 const = df1['Seller Advance'].values[0] + df1['Cancel Reserve'].values[0]
-                cohortDF = getCohortSPFAVG(DF,cohort)
+                cohortDF = getCohortSPFAVG(DF_VAR,cohort)
                 D = round(float(D)*const/100.0,2)
                 H = round(float(H)*const/100.0,2)
-                net_amt = calcNetHoldbackPerContract(cohortDF,DF_PER,fee,'amount',H,D)
+                net_amt = calcNetHoldbackPerContract(cohortDF,fee,'amount',H,D)
                 net_per_contract = round(net_amt/cohortDF.shape[0])
             else:
                 const = dataframe.CancelReserveAmount.mean() + dataframe.SellerAdvanceAmount.mean()
                 D = round(float(D)*const/100.0,2)
                 H = round(float(H)*const/100.0,2)
-                net_amt = calcNetHoldbackPerContract(dataframe,DF_PER,fee,'amount',H,D)
+                net_amt = calcNetHoldbackPerContract(dataframe,fee,'amount',H,D)
                 net_per_contract = round(net_amt/N_contracts)
         table.append((cohort,net_per_contract))
     return pd.DataFrame(table,columns=['Installment Terms','Net Amount,Contract'])
 
+"""Outputs the results of the live data from cohort table 4"""
+"""Used In: update_CohortTable5"""
 @cache.memoize()
 def getOutput2(df,dff,fee):
     table = []
@@ -761,16 +728,16 @@ def getOutput2(df,dff,fee):
             if N_contracts < 75:
                 df1 = DF_SPFAVG.loc[DF_SPFAVG['Installment Terms']==cohort]
                 const = df1['Seller Advance'].values[0] + df1['Cancel Reserve'].values[0]
-                cohortDF = getCohortSPFAVG(DF,cohort)
+                cohortDF = getCohortSPFAVG(DF_VAR,cohort)
                 D = round(float(D)*const/100.0,2)
                 H = round(float(H)*const/100.0,2)
-                net_amt = calcNetHoldbackPerContract(cohortDF,DF_PER,fee,'amount',H,D)
+                net_amt = calcNetHoldbackPerContract(cohortDF,fee,'amount',H,D)
                 net_per_contract = round(net_amt/cohortDF.shape[0])
             else:
                 const = dataframe.CancelReserveAmount.mean() + dataframe.SellerAdvanceAmount.mean()
                 D = round(float(D)*const/100.0,2)
                 H = round(float(H)*const/100.0,2)
-                net_amt = calcNetHoldbackPerContract(dataframe,DF_PER,fee,'amount',H,D)
+                net_amt = calcNetHoldbackPerContract(dataframe,fee,'amount',H,D)
                 net_per_contract = round(net_amt/N_contracts)
             accuring = round(int(N) * net_per_contract)
         table.append((cohort,net_per_contract,accuring))
@@ -783,7 +750,7 @@ def getOutput2(df,dff,fee):
               Input('fee','value')])
 def update_NetDeficit(funder,seller,fee):
     if ((funder is not None) and (seller is not None)):
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
         hldbckAmt = getTotalNetAmount(dataframe,fee)
         if hldbckAmt < 0:
             amount = '-${:,.0f}'.format(abs(hldbckAmt))
@@ -831,7 +798,7 @@ def update_CohortTable3(funder,seller,fee,rows):
     if ((funder is not None) and (seller is not None)):
         #core dataframe
         dff = pd.DataFrame(rows)
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
         result = getOutput(dataframe,dff,fee)
         return result.to_dict('records',into=OrderedDict)
     else:
@@ -858,7 +825,7 @@ def update_CohortTable5(funder,seller,fee,rows):
     if ((funder is not None) and (seller is not None)):
         #core dataframe
         dff = pd.DataFrame(rows)
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
         result = getOutput2(dataframe,dff,fee)
         return result.to_dict('records',into=OrderedDict)
     else:
