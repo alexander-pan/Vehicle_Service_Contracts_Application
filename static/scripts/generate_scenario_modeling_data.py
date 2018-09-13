@@ -135,6 +135,7 @@ def calcNetHoldback(df1,df2,fee,output):
 
     if output=='amount':
         return np.sum(holdback).round()
+
 def ExpectedValue(N,j,amount,row):
     value = 0.0
     value2 = 0.0
@@ -176,6 +177,7 @@ def ExpectedValue(N,j,amount,row):
         n += 1
     return value
 
+#Calculate Probability Distributions
 #[installment total, installment paid]
 P = np.zeros((25,25))
 for i in range(1,25):
@@ -270,12 +272,13 @@ calculations as (
 
 variables as (
   select t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
-  CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
+  CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,DiscountAmount,CancelReserveAmount,
   case
     when IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
     when IsCancelled=0 and PaymentsRemaining!=0 then null
     else 0.0
   end as end_contract_amt,
+  round(rate*DiscountAmount,2) as prorated_fee,
   day_utilized,VUR,(case when IsCancelled=1 then rate else 0.0 end) as rate,
   CurrentInstallmentAmount * Installments as payment_plan_amount,
   CurrentInstallmentAmount * PaymentsMade as total_install_rec,
@@ -289,3 +292,52 @@ select * from variables;
 """
 df4 = pd.read_sql(q4,cnxn)
 df4.to_pickle('../data/Scenario_Modeling_Variable_INFO.pkl')
+
+def ExpectedValueV2(N,j,amount,row):
+    value = 0.0
+    value2 = 0.0
+    n = j-1
+    if n % 3 == 0:
+        prev_date = (row.LastPaymentDate + BDay(25)).date()
+    else:
+        prev_date = (row.LastPaymentDate + BDay(20)).date()
+    for i in range(j+1,N+1):
+        p1 = 1.0
+        p2 = 1.0
+        for k in range(j+1,i+1):
+            p1 = p1 * P[N][k]
+
+            if k != i:
+                p2 = p2 * P[N][k]
+            elif k == i:
+                p2 = p2 * (1-P[N][k])
+
+        #value = value + amount * P[N][i]
+        if n % 3 == 0:
+            due_date = (prev_date + BDay(25)).date()
+        else:
+            due_date = (prev_date + BDay(20)).date()
+        prev_date = due_date
+
+        #calculate returned premium
+        num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
+        den = row.TermDays
+        RP = (num/den*row.SellerCost)-50
+        #value = value + amount*p1 + RP*p2
+        if N-i != 0:
+            RP_i = RP*(N-i)/N
+        else:
+            RP_i = 0.0
+        value = value + amount*p1 + RP_i*p2
+        #print amount,p1,RP_i,p2, amount*p1 + RP_i*p2
+        n += 1
+    return row.PolicyNumber,round(value,2)
+
+exp_df = []
+for i,row in df1.iterrows():
+    installments = row.PaymentsMade
+    installAmt = row.CurrentInstallmentAmount
+    term = row.Installments
+    exp_df.append(ExpectedValueV2(term,installments,installAmt,row))
+exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
+exp_val_df.to_pickle('../data/ExpectedValues.pkl')
