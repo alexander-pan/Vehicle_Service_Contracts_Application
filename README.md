@@ -1,7 +1,6 @@
 # To Update
 - Scripts to automate data at any specificed scheduled time
-- The data be compatible with app in case anything changed (current issue)
-- crontab on server/machine to schedule scripts to run (need to talk to Joe)
+-
 
 # Sunpath
 This document contains notes for the operation and technical details of
@@ -28,8 +27,9 @@ General
 How to Run:
 -primary app to run is "index.py"
 -python index.py to get the entire app to start running
+OR
+-(suggested) gunicorn -b 0.0.0.0:8050 --timeout 60 index:app.server
 
 Requirements
 -requirements.txt includes all the modules and dependencies required for the
 -flask app to run
-

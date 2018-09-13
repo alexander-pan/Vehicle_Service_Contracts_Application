@@ -908,7 +908,7 @@ def update_CohortTable3(funder,seller,fee,rows):
 def update_CohortTable4(funder,seller,fee):
     if ((funder is not None) and (seller is not None)):
         #core dataframe
-        dataframe = getCohort(DF,seller,funder)
+        dataframe = getCohort(DF_VAR,seller,funder)
 
         result = buildCohortTableOutput2(dataframe,fee)
         return result.to_dict('records',into=OrderedDict)
