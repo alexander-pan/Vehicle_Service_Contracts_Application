@@ -486,7 +486,7 @@ def calcNetHoldback(df1,fee,output):
     df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        return df.holdback.sum()
+        return df.holdback.sum().round()
     else:
         return "Error"
 

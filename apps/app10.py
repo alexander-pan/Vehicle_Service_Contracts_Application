@@ -446,7 +446,7 @@ def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        return df.holdback.sum()
+        return df.holdback.sum().round()
     else:
         return "Error"
 
