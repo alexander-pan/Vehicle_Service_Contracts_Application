@@ -139,8 +139,6 @@ def calcNetHoldback(df1,df2,fee,output):
 def ExpectedValue(N,j,amount,row):
     value = 0.0
     value2 = 0.0
-    sellercost = row.SellerCost
-    eff_date = row.EffectiveDate
     n = j-1
     if n % 3 == 0:
         prev_date = (row.LastPaymentDate + BDay(25)).date()
@@ -165,11 +163,12 @@ def ExpectedValue(N,j,amount,row):
         prev_date = due_date
 
         #calculate returned premium
-        num = (row.TermDays + (eff_date - (due_date+relativedelta(days=30))).days)
+        num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
         den = row.TermDays
-        RP = num/den*sellercost-50
-        if row.Installments-i != 0:
-            RP_i = RP/row.Installments#*(row.Installments-i)/row.Installments
+        RP = (num/den*row.SellerCost)-50
+        #value = value + amount*p1 + RP*p2
+        if N-i != 0:
+            RP_i = RP*(N-i)/N
         else:
             RP_i = 0.0
         value = value + amount*p1 + RP_i*p2
