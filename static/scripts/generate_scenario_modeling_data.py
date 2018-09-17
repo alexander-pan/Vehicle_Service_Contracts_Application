@@ -28,6 +28,7 @@ select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDat
   join dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
   join dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
   where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+  and (de.PaymentsMade <= afd.installments)
   group by de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName;
 """
 df1 = pd.read_sql(q1,cnxn)
@@ -166,12 +167,12 @@ def ExpectedValue(N,j,amount,row):
         num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
         den = row.TermDays
         RP = (num/den*row.SellerCost)-50
-        #value = value + amount*p1 + RP*p2
-        if N-i != 0:
+        value = value + amount*p1 + RP*p2
+        """if N-i != 0:
             RP_i = RP*(N-i)/N
         else:
             RP_i = 0.0
-        value = value + amount*p1 + RP_i*p2
+        value = value + amount*p1 + RP_i*p2"""
         #print amount*p1+ RP_i*p2
         n += 1
     return value
@@ -224,6 +225,7 @@ with scenario_info as (
   join dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
   join dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
   where (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+  and (de.PaymentsMade <= afd.installments)
   group by de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName
 ),
 
@@ -273,7 +275,7 @@ variables as (
   select t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
   CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
   DiscountAmount,CancelReserveAmount,SellerAdvanceAmount,
-  AmountFinanced,PaymentsRemaining,
+  AmountFinanced,PaymentsRemaining,EffectiveDate,TermDays,SellerCost,
   case
     when IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
     when IsCancelled=0 and PaymentsRemaining!=0 then null
@@ -294,7 +296,7 @@ select * from variables;
 df4 = pd.read_sql(q4,cnxn)
 df4.to_pickle('../data/Scenario_Modeling_Variable_INFO.pkl')
 
-def ExpectedValueV2(N,j,amount,row):
+"""def ExpectedValueV2(N,j,amount,row):
     value = 0.0
     value2 = 0.0
     n = j-1
@@ -324,12 +326,12 @@ def ExpectedValueV2(N,j,amount,row):
         num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
         den = row.TermDays
         RP = (num/den*row.SellerCost)-50
-        #value = value + amount*p1 + RP*p2
-        if N-i != 0:
-            RP_i = RP*(N-i)/N
-        else:
-            RP_i = 0.0
-        value = value + amount*p1 + RP_i*p2
+        value = value + amount*p1 + RP*p2
+        #if N-i != 0:
+        #    RP_i = RP*(N-i)/N
+        #else:
+        #    RP_i = 0.0
+        #value = value + amount*p1 + RP_i*p2
         #print amount,p1,RP_i,p2, amount*p1 + RP_i*p2
         n += 1
     return row.PolicyNumber,round(value,2)
@@ -341,4 +343,4 @@ for i,row in df1.iterrows():
     term = row.Installments
     exp_df.append(ExpectedValueV2(term,installments,installAmt,row))
 exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
-exp_val_df.to_pickle('../data/ExpectedValues.pkl')
+exp_val_df.to_pickle('../data/ExpectedValues.pkl')"""
