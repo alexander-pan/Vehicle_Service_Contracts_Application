@@ -9,7 +9,7 @@
 \usepackage{amssymb}
 \usepackage[title]{appendix}
 \usepackage{listings}
-
+\setlength{\parskip}{1em}
 \author{StatusQuota}
 \title{Sunpath Dashboard Application Manual}
 \begin{document}
@@ -30,7 +30,7 @@ In order to access the application the user must navigate to the link listed in 
 	\item user email: spfadmn.test@gmail.com
 	\item password: webappP@55
 \end{enumerate}
-
+\newpage
 \subsection{Plotly/Dash}
 The application foundation uses the python framework known as Dash. Dash uses the Plotly framework for visualizations. It is a web-based interface that is used for building interactive analytical web applications. It uses various UI elements like dropdowns, sliders, and graphs in combination with Python code. This allows for a very powerful tool that can combine web-based applications with coding elements. As a result, it provides a foundation for interactive visualizations in a medium that can be simple, easy to use and learn.  
 
@@ -67,7 +67,7 @@ The visualizations and plots generated from the application and dashboards can b
 \subsection{Table Visuals and Features}
 Most tables in the application also come with some basic customizable features. A user can take a column header and resize to their preferred width. Also, a user can sort a table by selecting a column header and choose to sort by ascending or descending values. And unless specificed, some tables allow the user to edit the table by choosing their own input values. 
 %---------------------------------------------------------------------------
-
+\newpage
 \section{Admin Bank Reconcillation}
 \subsection{Summary}
 This dashboard component allows the user to see the admin version of the bank reconcillation summary dashboard. It shows a table and column names for "Bank of America" and "Sunpath" tables. The "Bank of America" columns are the various descriptions for account types: $Days/Months$, $Ops$, $Claims$, $INS$, $Payroll$, $Escrow$, and $Total$. The "Sunpath" columns are the types/database tables : $Days/Months$, $Deposits$, $Insurance$, $Plugs$, $Packs$ $Payments$, and $Total$. The $Variance$ column value is the difference between the "Bank of America:$Total$" and "Sunpath:$Total$".
@@ -250,7 +250,7 @@ The monthly sales volume histogram's bins for a cohort are calculated by groupin
 \subsection{Admin and Vendor Details}\label{admin}
 This dashboard component contains the tables and values for admin or vendor details. The admin dashboard component includes "Loss Ratio" and "Expected IRR" columns in the tables, but the vendor component does not include these. Also, a general rule is applied for sellers that do not have many contracts under their historical performance. If a seller or cohort has less than 75 contracts then we use a "Sunpath Average", which uses the data from taking all the contracts in Sunpath's historical database. 
 
-\textbf{\emph{Note 1:} Some of the fields will not load on first time, this is due to excessive memory usage or limit of the Dash architecture. This can be solved by reselecting the seller or selecting an editable field and hitting "enter" to reload/calculate the data.} 
+\textbf{\emph{Note 1:} Some of the fields will not load on first time data is calculated, this is due to a bug that cannot be easily fixed or has no known fix and is an application side issue. This can be solved by reselecting the seller or selecting and editable field and hitting "enter" to reloard/calculate the data again.} 
 
 \textbf{\emph{Note 2:} For the purpose of this manual and section, a funder and seller combination will be defined as a group and the installment terms will be defined as a cohort.}
 \subsubsection{How to Use}
@@ -335,18 +335,24 @@ where $Total$ and $ReturnedPremium$ is defined as
 	\end{split}
 \end{equation}
 \begin{equation}
-\begin{split}
+\begin{split}\label{returnedprem}
 Fraction(Days) &= \left[\frac{TermDays + \left[EffectiveDate - (DueDate + 30 days)\right]}{TermDays}\right]\\
 ReturnedPremium &= Fraction(Days) \times SellerCost - 50
 \end{split}
 \end{equation}
-The $ExpectedValue$ is the expected projected receivable for a contract at some payment $i$ in its lifetime. The Expected Value is a function of $Term$, $PaymentsMade$, $InstallAmt$, and contract. The method and algorithm utilizes statistical probability theory principals on expected values, and it is calculated by:
+The $ExpectedValue$ is the expected projected receivable for an contract at some payment $i$ in its lifetime. A cancelled contract's expected value would be the returned premium that is taken from contract fields within the database. A completed contract would not expect any further payment. Finally, an open contract would expect to receive payments up to the last payment, $j$, and if it cancels it would have a returned premium, which is calculated from equation \ref{returnedprem}. 
+
+The expected projected receivable is a function of a contract's $Term$, $PaymentsMade$, $InstallAmt$,$EffectiveDate$, and $SellerCost$ for returned premium calculation. The method and algorithm utilizes a Monte Carlo to create a simulation of contracts with installment term $N = 1,2,3,4,...,24$. It uses the contracts within the database to calculate the conditional probabilities for contracts with term $N$ given installments paid $i$. It uses these probabilities to run a simulation for each individual contract term $10^5$ times, and then uses the information to get an expected last payment $j$ as a function of term $N$ and installments paid $i$. The value used for last payment is one standard deviation above the mean, as this value gave us the "best" precision based on backtesting analysis between 50\%-80\% depending on the contract term , a contract's lifetime, and the amount of contracts in the backtesting cohort. 
 \begin{equation}
-\begin{split}
-ExpectedValue &= InstallAmt \times ProbNC \\
-&+ RP\left(\frac{Term-i}{Term}\right) \times ProbC
-\end{split}
+last\ payment= Probability(N,i)
 \end{equation}
+%\begin{equation}
+%\begin{split}
+%ExpectedValue &= InstallAmt \times ProbNC \\
+%&+ RP\left(\frac{Term-i}{Term}\right) \times ProbC
+%\end{split}
+%\end{equation}
+
 The IRR calculation uses a built in function available in Python. This is not a projection as that would be beyond the dashboard's purpose, and a projected IRR would require more time and computation power that is not available with a real time calculation product. As a result, we can compute the expected IRR \% as a function of cancel reserve and discount amount. In order to calcluate this value, the contract's cashflows had to all begin at a similar point in time, which we call $T_0$. All the contracts in the cohort begin at $T_0$ and cashflows are added together to create one cashflow. This final cashflow is then used to calculate the current IRR \%. 
 
 The other value/column calculations are: 
@@ -404,19 +410,105 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	The Scenario Modeling Info query:
 	\label{appendix:sql3}
 	\begin{verbatim}
-	SELECT de.PolicyNumber, de.EffectiveDate,de.CancelDate,de.LastPaymentDate,
-	de.IsCancelled,de.FundCo,sfd.SellerName,de.AmountFinanced,sfd.TotalSalesPrice,
-	de.DiscountAmount,sfd.SellerCost,CancelReserveAmount,SellerAdvanceAmount,
-	AdminPortionAmt,InsReservePortionAmt,de.CurrentInstallmentAmount,
-	de.PaymentsMade,de.PaymentsRemaining,
-	de.PaymentsMade+de.PaymentsRemaining as Installments,
-	sfd.DownPayment,de.ReturnedPremium,
-	de.ReturnedCommission,se.termmonths/12.0*365 as TermDays
-	FROM dbo.daily_extract as de 
+	SELECT distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
+	MAX(de.AmountFinanced) as AmountFinanced,MAX(sfd.TotalSalesPrice) as TotalSalePrice,MAX(de.DiscountAmount) as DiscountAmount,MAX(sfd.SellerCost) as SellerCost,
+	MAX(CancelReserveAmount) as CancelReserveAmount,MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
+	MAX(AdminPortionAmt) as AdminPortionAmt,MAX(InsReservePortionAmt) as InsReservePortionAmt,
+	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,MAX(de.PaymentsMade) as PaymentsMade,MAX(de.PaymentsRemaining) as PaymentsRemaining,
+	MAX(de.PaymentsMade+de.PaymentsRemaining) as Installments,
+	MAX(sfd.DownPayment) as DownPayment,MAX(de.ReturnedPremium) as ReturnedPremium,MAX(de.ReturnedCommission) as ReturnedCommission,MAX(se.termmonths/12.0*365) as TermDays
+	FROM dbo.daily_extract as de
 	JOIN  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
 	JOIN dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
 	JOIN dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
-	WHERE (de.PaymentsMade+de.PaymentsRemaining) = afd.installments;
+	WHERE (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+	AND (de.PaymentsMade <= afd.installments)
+	GROUP BY de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName;
+	\end{verbatim}
+	
+	The Scenario Modeling Info, more in-depth calculations used for calculating Holdback to be more efficient:
+	\label{appendix:sql6}
+	\begin{verbatim}
+	with scenario_info as (
+	SELECT distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
+	MAX(de.AmountFinanced) as AmountFinanced,MAX(sfd.TotalSalesPrice) as TotalSalePrice,MAX(de.DiscountAmount) as DiscountAmount,MAX(sfd.SellerCost) as SellerCost,
+	MAX(CancelReserveAmount) as CancelReserveAmount,MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
+	MAX(AdminPortionAmt) as AdminPortionAmt,MAX(InsReservePortionAmt) as InsReservePortionAmt,
+	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,MAX(de.PaymentsMade) as PaymentsMade,MAX(de.PaymentsRemaining) as PaymentsRemaining,
+	MAX(de.PaymentsMade+de.PaymentsRemaining) as Installments,
+	MAX(sfd.DownPayment) as DownPayment,MAX(de.ReturnedPremium) as ReturnedPremium,MAX(de.ReturnedCommission) as ReturnedCommission,MAX(se.termmonths/12.0*365) as TermDays
+	FROM dbo.daily_extract as de
+	JOIN  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
+	JOIN dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
+	JOIN dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
+	WHERE (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
+	AND (de.PaymentsMade <= afd.installments)
+	GROUP BY de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName
+	),
+	
+	funding_fees as (
+	SELECT SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
+	FROM dbo.seller_info_funding_approved_partners as df1
+	JOIN dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunPathSellerCode
+	),
+	
+	txcodes as (
+	SELECT distinct SunPathSellerCode,SunPathAccountingCode,SellerName
+	FROM dbo.daily_extract as t1
+	JOIN dbo.seller_funding_data as t2
+	ON t1.PolicyNumber = t2.PolicyNumber
+	JOIN dbo.seller_info_funding_approved_partners as t3
+	ON t1.sellercode = t3.paylinksellercode
+	),
+	
+	rates as (
+	SELECT SellerName,
+	Installments,
+	CancelPercentage
+	FROM funding_fees
+	INNER JOIN txcodes on funding_fees.SunPathAccountingCode = txcodes.SunPathAccountingCode
+	),
+	
+	info as (
+	SELECT PolicyNumber, CancelPercentage, EffectiveDate,TermDays,
+	CASE
+		WHEN (CancelDate is null) then LastPaymentDate
+		ELSE CancelDate
+	END as cancel_date
+	FROM scenario_info as t1
+	INNER JOIN rates as t2
+	ON t1.SellerName =t2.SellerName AND t1.PaymentsMade = t2.Installments
+	),
+	
+	calculations as (
+	SELECT PolicyNumber,
+	CancelPercentage as rate,
+	datediff(day,EffectiveDate,cancel_date) as day_utilized,
+	datediff(day,EffectiveDate,cancel_date)/TermDays as VUR
+	FROM info
+	),
+	
+	variables as (
+	SELECT t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
+	CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
+	DiscountAmount,CancelReserveAmount,SellerAdvanceAmount,
+	AmountFinanced,PaymentsRemaining,EffectiveDate,TermDays,SellerCost,
+	CASE
+		WHEN IsCancelled=1 OR PaymentsRemaining=0 then ReturnedPremium
+		WHEN IsCancelled=0 AND PaymentsRemaining!=0 then null
+		ELSE 0.0
+	END as end_contract_amt,
+	ROUND(rate*DiscountAmount,2) as prorated_fee,
+	day_utilized,VUR,(case when IsCancelled=1 then rate else 0.0 end) as rate,
+	CurrentInstallmentAmount * Installments as payment_plan_amount,
+	CurrentInstallmentAmount * PaymentsMade as total_install_rec,
+	ROUND((1-VUR)*AdminPortionAmt,2) as Amt_Owed_SPF_PreFee,
+	ROUND((1-VUR)*InsReservePortionAmt,2) as Amt_Owed_INS
+	FROM scenario_info as t1 inner JOIN calculations as t2
+	ON t1.PolicyNumber=t2.PolicyNumber
+	)
+	
+	SELECT * FROM variables;
 	\end{verbatim}
 	The Funding Fee Percents query:
 	\label{appendix:sql4}

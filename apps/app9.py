@@ -10,6 +10,7 @@ from pandas.tseries.offsets import *
 #import pyodbc
 import copy
 from app import app
+import time
 
 import dash
 from dash.dependencies import Input, Output, State
@@ -470,6 +471,10 @@ def calcNetHoldback(df1,fee,output):
     holdback = []
     funder = []
 
+    #dianositc
+    print "calculating..."
+    start = time.time()
+
     df = df1.copy()
     df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
     df['deficit'] = df.CancelReserveAmount - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + df.DiscountAmount - df.prorated_fee
@@ -487,6 +492,7 @@ def calcNetHoldback(df1,fee,output):
 
     if output=='amount':
         return df.holdback.sum().round()
+        print "calculation complete: %f seconds" % time.time() - start
     else:
         return "Error"
 
@@ -498,7 +504,8 @@ def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
     funder = []
-    print df1.shape
+    print "calculating..."
+    start = time.time()
 
     df = df1.copy()
     df['prorated_fee'] = [round(float(x),2) for x in (df.rate * discount_amt)]
@@ -518,6 +525,7 @@ def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
 
     if output=='amount':
         return df.holdback.sum()
+        print "calculation complete: %f seconds" % time.time() - start 
     else:
         return "Error"
 

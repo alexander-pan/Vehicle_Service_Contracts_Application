@@ -53,7 +53,7 @@ layout_page = html.Div([
                             max_date_allowed=dt.now(),
                             initial_visible_month=dt(2018,1,1),
                             number_of_months_shown=2,
-                            end_date=dt.now().date(),
+                            end_date=dt(2018,1,31).date(),#dt.now().date(),
                             start_date=dt(2018,1,1).date(),
                             minimum_nights=0,
                     ),
@@ -114,7 +114,7 @@ layout_page = html.Div([
     ),
 ])
 
-@cache.memoize()
+"""@cache.memoize()
 def buildDays(date):
     month = date.month
     thirtyone = [1,3,5,7,8,10,12]
@@ -129,11 +129,13 @@ def buildDays(date):
     else:
         days = range(1,29)
 
-    return days
+    return days"""
 
 @cache.memoize()
 def buildDayRange(start_date,end_date):
-    return range(start_date.day,end_date.day+1)
+    delta = end_date - start_date
+    return range(start_date.day,delta.days+1)
+    #return range(start_date.day,end_date.day+1)
 
 @cache.memoize()
 def convertDatetime(df,col):

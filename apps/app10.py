@@ -398,7 +398,7 @@ def calcNetHoldback(df1,fee,output):
     #all completed, cancelled contracts
     holdback = []
     funder = []
-
+    print "calculating..."
     df = df1.copy()
     df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
     df['deficit'] = df.CancelReserveAmount - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + df.DiscountAmount - df.prorated_fee
@@ -427,7 +427,7 @@ def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     #Find Owed To Funder = Gross Capital + HldbckRsv + Porated Funding Fee - Total Installs Received
     holdback = []
     funder = []
-    print df1.shape
+    print "calculating..."
 
     df = df1.copy()
     df['prorated_fee'] = [round(float(x),2) for x in (df.rate * discount_amt)]

@@ -55,7 +55,7 @@ layout_page = html.Div([
                             max_date_allowed=dt.now(),
                             initial_visible_month=dt(2018,1,1),
                             number_of_months_shown=2,
-                            end_date=dt.now().date(),
+                            end_date=dt(2018,1,31).date(),#dt.now().date(),
                             start_date=dt(2018,1,1).date(),
                             minimum_nights=0,
                     ),
