@@ -491,7 +491,7 @@ def calcNetHoldback(df1,fee,output):
     df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        print "calculation complete: %f seconds" % time.time() - start
+        print "calculation complete: %f seconds" % (time.time() - start)
         return df.holdback.sum().round()
     else:
         return "Error"
@@ -524,7 +524,7 @@ def calcNetHoldbackPerContract(df1,fee,output,cancel_reserve,discount_amt):
     df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        print "calculation complete: %f seconds" % time.time() - start
+        print "calculation complete: %f seconds" % (time.time() - start)
         return df.holdback.sum()
     else:
         return "Error"
