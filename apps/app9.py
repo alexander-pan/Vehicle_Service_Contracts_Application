@@ -189,7 +189,7 @@ layout_page = html.Div([
                     id='cohortT3',
                     rows=[{}],
                     columns=['Net Amount,Contract',
-                             'Expected IRR %'],
+                             'Current IRR %'],
                     sortable=False,
                     editable=False,
                 )
@@ -298,8 +298,8 @@ layout_page = html.Div([
                     id='cohortT5',
                     rows=[{}],
                     columns=['Net Amt,Contract',
-                             'Accuring Net,Month',
-                             'Expected IRR %'],
+                             'Accruing Net,Month',
+                             'Current IRR %'],
                     sortable=False,
                     editable=False,
                     max_rows_in_viewport=7

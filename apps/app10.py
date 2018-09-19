@@ -272,7 +272,7 @@ layout_page = html.Div([
                 dte.DataTable(
                     id='cohortT5_10',
                     rows=[{}],
-                    columns=['Net Amt,Contract','Accuring Net,Month'],
+                    columns=['Net Amt,Contract','Accruing Net,Month'],
                     sortable=False,
                     editable=False,
                     max_rows_in_viewport=7

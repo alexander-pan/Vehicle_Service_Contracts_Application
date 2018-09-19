@@ -10,6 +10,7 @@
 \usepackage[title]{appendix}
 \usepackage{listings}
 \setlength{\parskip}{1em}
+
 \author{StatusQuota}
 \title{Sunpath Dashboard Application Manual}
 \begin{document}
@@ -24,10 +25,12 @@ The manual is structured by sections. First, the introduction gives a basic expl
 Also, it is important to note that each time you navigate away from a dashboard the dashboard "'\textbf{resets}" and goes back to original state it was before the user navigated to it. 
 
 \subsection{Access Information}
-In order to access the application the user must navigate to the link listed in the following credentials. There you will be asked to authenticate with a google email. The user credentials needed for the test versions for the application are listed below: 
+In order to access the application the user must navigate to the link listed in the following credentials.  The authentication uses Google Oauth technology, and as a result it will ask you to authenticate with a google account email. Once you authenticate, the authentication will be stored into the cookies, and as a result you will no longer be asked to authenticate on the machine until you clear said cookies. The only restriction is that the emails that can be allowed to access the application must be manually inputed into a file on the server. 
+
+The user credentials needed for the test versions for the application are listed below: 
 \begin{enumerate}
-	\item webapp temp address: http://alexpan.ktechboston.com/
-	\item user email: spfadmn.test@gmail.com
+	\item webapp temp address (will change for final version): \\http://alexpan.ktechboston.com/
+	\item dummy user email: spfadmn.test@gmail.com
 	\item password: webappP@55
 \end{enumerate}
 \newpage
@@ -62,7 +65,7 @@ Database: \underline{\textbf{FundingPaylink\_Live}}
 	\end{enumerate}
 	
 \subsection{Plot/Graph Visuals and Features}
-The visualizations and plots generated from the application and dashboards can be interacted with by the user. All plots and visuals have the following attributes: hover tool, functionality features (zoom, pan, box select, axes reset and autoscale), download to png, ability to edit in plotly's chart studio, and much more. A convienent toolbar is visible once the user hovers on the visual. 
+The visualizations and plots generated from the application and dashboards can be interacted with by the user. All plots and visuals have the following attributes: hover tool, functionality features (zoom, pan, box select, axes reset and autoscale), download to png, ability to edit in plotly's chart studio, and much more. A convenient toolbar is visible once the user hovers on the visual. 
 
 \subsection{Table Visuals and Features}
 Most tables in the application also come with some basic customizable features. A user can take a column header and resize to their preferred width. Also, a user can sort a table by selecting a column header and choose to sort by ascending or descending values. And unless specificed, some tables allow the user to edit the table by choosing their own input values. 
@@ -243,14 +246,14 @@ The monthly sales volume histogram's bins for a cohort are calculated by groupin
 	\item Avg. Contracts, Month = The mean or average number of contracts sold per month based on a cohort's historical data
 	\item Avg. Face Value = The mean or average amount financed for a contract based on a cohort's historical data
 	\item Total Seller Advance = Total Seller Advance Amount from each contract based on a cohort's historical data
-	\item Avg. Contracts Sold, 3 months = The mean or average number of contracts sold in the most recent 3 months of a cohort
+	\item Avg. Contracts Sold, 3 last months = The mean or average number of contracts sold in the most recent 3 months of a cohort
 	\item Growth Rate = Calculates the rate of contracts sold from 2 months from the most recent month. Example. if now = April 2018, we look at the growth rate from January 2018 to Feburary 2018. This was chosen because 2 months from the most recent month allowed the database to be properly updated with data.  
 \end{enumerate}
 
 \subsection{Admin and Vendor Details}\label{admin}
 This dashboard component contains the tables and values for admin or vendor details. The admin dashboard component includes "Loss Ratio" and "Expected IRR" columns in the tables, but the vendor component does not include these. Also, a general rule is applied for sellers that do not have many contracts under their historical performance. If a seller or cohort has less than 75 contracts then we use a "Sunpath Average", which uses the data from taking all the contracts in Sunpath's historical database. 
 
-\textbf{\emph{Note 1:} Some of the fields will not load on first time data is calculated, this is due to a bug that cannot be easily fixed or has no known fix and is an application side issue. This can be solved by reselecting the seller or selecting and editable field and hitting "enter" to reloard/calculate the data again.} 
+\textbf{\emph{Note 1:} Some of the fields will not load on first time data is calculated, depending on the data queried. This can easily be solved by reselecting the seller, funder, or editing an editable field and hitting "Enter" to reload and recalculate.}
 
 \textbf{\emph{Note 2:} For the purpose of this manual and section, a funder and seller combination will be defined as a group and the installment terms will be defined as a cohort.}
 \subsubsection{How to Use}
@@ -283,13 +286,13 @@ This section gives the description and calculations for this dashboard's values.
 	\item Net Amount: The Net Holdback for the installment term cohort
 	\item Loss Ratio: $\frac{APR + EPR}{\text{Total Cancel Reserve Amount}}$
 	\item Net Amount, Contract: The net holdback per contract in installment term cohort
-	\item Expected IRR \%: The internal rate of return as a percentage for contracts in the cohort up to their current state (this is not a projection)
+	\item Current IRR \%: The internal rate of return as a percentage for contracts in the cohort up to their current state (this is not a projection)
 	\item Cumulative Net Deficit/Surplus: The Cumulative Net Holdback amount for the funder, seller group
 	\item Cumulative Cancel Reserve: The total cancel reserve for the funder, seller group
 	\item Avg. Contracts Sold, Month: The average contracts sold per month for the funder, seller group
 	\item Contracts, Month: This editable field is the number of contracts sold per month to calculate the accuring net holdback per month
 	\item Net Amt, Contract: The net holdback amount on a per contract basis for the installment term cohort
-	\item Accuring Net, Month: The accuring net holdback per month based on the net holdback amount per contract
+	\item Accruing Net, Month: The accruing net holdback per month based on the net holdback amount per contract
 \end{enumerate}
 The calculations for many of these values will be shown below, as well as the variables used in the calculations:
 \begin{enumerate}
@@ -342,7 +345,7 @@ ReturnedPremium &= Fraction(Days) \times SellerCost - 50
 \end{equation}
 The $ExpectedValue$ is the expected projected receivable for an contract at some payment $i$ in its lifetime. A cancelled contract's expected value would be the returned premium that is taken from contract fields within the database. A completed contract would not expect any further payment. Finally, an open contract would expect to receive payments up to the last payment, $j$, and if it cancels it would have a returned premium, which is calculated from equation \ref{returnedprem}. 
 
-The expected projected receivable is a function of a contract's $Term$, $PaymentsMade$, $InstallAmt$,$EffectiveDate$, and $SellerCost$ for returned premium calculation. The method and algorithm utilizes a Monte Carlo to create a simulation of contracts with installment term $N = 1,2,3,4,...,24$. It uses the contracts within the database to calculate the conditional probabilities for contracts with term $N$ given installments paid $i$. It uses these probabilities to run a simulation for each individual contract term $10^5$ times, and then uses the information to get an expected last payment $j$ as a function of term $N$ and installments paid $i$. The value used for last payment is one standard deviation above the mean, as this value gave us the "best" precision based on backtesting analysis between 50\%-80\% depending on the contract term , a contract's lifetime, and the amount of contracts in the backtesting cohort. 
+The expected projected receivable is a function of a contract's $InstallAmt$, $Term$, $PaymentsMade$, $EffectiveDate$, and $SellerCost$ for returned premium calculation. The method and algorithm utilizes a Monte Carlo to create a simulation of contracts with installment term $N = 1,2,3,4,...,24$. It uses the contracts within the database to calculate the conditional probabilities for contracts with term $N$ given installments paid $i$. It uses these probabilities to run a simulation for each individual contract term 100,000 times, and then uses the information to get an expected last payment $j$ as a function of term $N$ and installments paid $i$. The value used for last payment is one standard deviation above the mean, as this value gave us the "best" precision based on backtesting analysis between 50\%-80\% depending on the contract term , a contract's lifetime, and the amount of contracts in the backtesting cohort. 
 \begin{equation}
 last\ payment= Probability(N,i)
 \end{equation}
@@ -510,6 +513,7 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	
 	SELECT * FROM variables;
 	\end{verbatim}
+	
 	The Funding Fee Percents query:
 	\label{appendix:sql4}
 	\begin{verbatim}

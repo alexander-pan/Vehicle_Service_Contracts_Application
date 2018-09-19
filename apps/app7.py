@@ -253,7 +253,7 @@ layout_page = html.Div([
                            'margin':10
                           }
                 ),
-                html.Label('Avg. Contracts Sold, 3 Months',
+                html.Label('Avg. Contracts Sold, 3 Last Months',
                     style={'fontSize':15,
                            'textAlign':'center'}),
 
@@ -596,7 +596,7 @@ def update_cancel_curve(funder,seller,curve_list):
         data = go.Bar(
                 x =  X,
                 y = y,
-                text = [int(round(x)) for x in y],
+                text = [round(x,1) for x in y],
                 textposition='outside',
                 name = 'Overall'
             )
@@ -609,7 +609,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Cohort(1-6)'
@@ -620,7 +620,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Cohort(7-12)'
@@ -631,7 +631,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Cohort(13-15)'
@@ -642,7 +642,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Cohort(16-18)'
@@ -653,7 +653,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Cohort(19-24)'
@@ -664,7 +664,7 @@ def update_cancel_curve(funder,seller,curve_list):
                 data = go.Bar(
                         x =  x_data,
                         y = y_data,
-                        text = [int(round(x)) if ~np.isnan(x) else 0 for x in y_data],
+                        text = [round(x,1) if ~np.isnan(x) else 0 for x in y_data],
                         textposition='outside',
                         opacity = 1,
                         name = 'Vendor(All)'
