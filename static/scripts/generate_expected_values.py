@@ -5,15 +5,18 @@ from datetime import datetime as dt, timedelta
 from dateutil.relativedelta import *
 from pandas.tseries.offsets import *
 from collections import OrderedDict
-import sys
-sys.path.append('../../../passwords')
+
+#sys.path.append('../../../passwords')
 from sunpath_dbcreds import server,database,username,password
 
-sys.path.append('../../apps')
+import sys
+import os
+sys.path.append('/home/webapp/Sunpath/apps')
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+home = os.environ['HOME']
 #For App7,9,10
 q4 = """
 with scenario_info as (
@@ -235,4 +238,5 @@ exp_df = []
 for i,row in openedDF.iterrows():
     exp_df.append(getProjectedReceivable(row))
 exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
-exp_val_df.to_pickle('../data/ExpectedValues.pkl')
+path = '{0}/Sunpath/static/data/ExpectedValues.pkl'.format(home)
+exp_val_df.to_pickle(path)

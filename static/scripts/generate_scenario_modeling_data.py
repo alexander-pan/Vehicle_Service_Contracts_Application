@@ -5,15 +5,17 @@ from datetime import datetime as dt, timedelta
 from dateutil.relativedelta import *
 from pandas.tseries.offsets import *
 from collections import OrderedDict
-import sys
-sys.path.append('../../../passwords')
+import os
+#sys.path.append('../../../passwords')
 from sunpath_dbcreds import server,database,username,password
 
-sys.path.append('../../apps')
+import sys
+sys.path.append('/home/webapp/Sunpath/apps/')
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+home = os.environ['HOME']
 #For App7,9,10
 q1 = """
 select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
@@ -33,7 +35,8 @@ select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDat
 """
 df1 = pd.read_sql(q1,cnxn)
 df1.drop_duplicates('PolicyNumber',inplace=True)
-df1.to_pickle('../data/Scenario_Modeling_INFO.pkl')
+path = '{0}/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
+df1.to_pickle(path)
 
 q2 = """
 select SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
@@ -42,7 +45,8 @@ join dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunP
 """
 
 df2 = pd.read_sql(q2,cnxn)
-df2.to_pickle('../data/Funding_Fee_Percents.pkl')
+path = '{0}/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
+df2.to_pickle(path)
 
 def buildCohortTable3(df,fee):
     dataframe = df.copy()
@@ -196,7 +200,8 @@ for i in range(1,25):
             P[i][j] = 1-p
 
 final_result = buildCohortTable3(df1,50)
-final_result.to_pickle('../data/SPF_AVERAGE.pkl')
+path = '{0}/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
+final_result.to_pickle(path)
 
 q3 = """
 SELECT
@@ -209,7 +214,8 @@ WHERE (FTL.CashTx = 1) AND (FTL.PolicyNumber IS NOT NULL)
 ORDER BY FTL.PolicyNumber, FTL.TxDate;
 """
 df3 = pd.read_sql(q3,cnxn)
-df3.to_pickle('../data/TXLog_Cashflows.pkl')
+path = '{0}/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
+df3.to_pickle(path)
 
 q4 = """
 with scenario_info as (
@@ -294,7 +300,8 @@ variables as (
 select * from variables;
 """
 df4 = pd.read_sql(q4,cnxn)
-df4.to_pickle('../data/Scenario_Modeling_Variable_INFO.pkl')
+path = '{0}/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
+df4.to_pickle(path)
 
 """def ExpectedValueV2(N,j,amount,row):
     value = 0.0

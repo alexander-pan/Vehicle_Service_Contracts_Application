@@ -5,11 +5,12 @@ from datetime import datetime as dt, timedelta
 from dateutil.relativedelta import *
 from collections import OrderedDict
 import sys
-sys.path.append('../../../passwords')
+import os
 from sunpath_dbcreds import server,database,username,password
 
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
+home = os.environ['HOME']
 
 DESCR_KEYS = {
     'Administrator Funding' : 'Deposits',
@@ -89,19 +90,34 @@ df12['Amount'] = df12['TxAmount']*df12['PosOrNegTx']
 df12['Category'] = df12['TxDescription'].apply(lambda x: DESCR_KEYS[x])
 
 #App3 Data Tables
-df1.to_pickle('../data/SPA_SPBankingStat.pkl')
-df2.to_pickle('../data/SPA_SPDepositsStat.pkl')
-df3.to_pickle('../data/SPA_SPPlugStat.pkl')
-df4.to_pickle('../data/SPA_SPPaymentsStat.pkl')
-df5.to_pickle('../data/SPA_Funded_Contracts.pkl')
+path1 = '{0}/Sunpath/static/data/SPA_SPBankingStat.pkl'.format(home)
+path2 = '{0}/Sunpath/static/data/SPA_SPDepositsStat.pkl'.format(home)
+path3 = '{0}/Sunpath/static/data/SPA_SPPlugStat.pkl'.format(home)
+path4 = '{0}/Sunpath/static/data/SPA_SPPaymentsStat.pkl'.format(home)
+path5 = '{0}/Sunpath/static/data/SPA_Funded_Contracts.pkl'.format(home)
+
+df1.to_pickle(path1)
+df2.to_pickle(path2)
+df3.to_pickle(path3)
+df4.to_pickle(path4)
+df5.to_pickle(path5)
 
 #App4 Data Tables
-df6.to_pickle('../data/Banking_Transaction.pkl')
-df7.to_pickle('../data/Plug_Other.pkl')
-df8.to_pickle('../data/Payments.pkl')
-df9.to_pickle('../data/SPF_Premium.pkl')
-df10.to_pickle('../data/Deposits.pkl')
+path6 = '{0}/Sunpath/static/data/Banking_Transaction.pkl'.format(home)
+path7 = '{0}/Sunpath/static/data/Plug_Other.pkl'.format(home)
+path8 = '{0}/Sunpath/static/data/Payments.pkl'.format(home)
+path9 = '{0}/Sunpath/static/data/SPF_Premium.pkl'.format(home)
+path10 = '{0}/Sunpath/static/data/Deposits.pkl'.format(home)
+
+df6.to_pickle(path6)
+df7.to_pickle(path7)
+df8.to_pickle(path8)
+df9.to_pickle(path9)
+df10.to_pickle(path10)
 
 #App5,6 DataTables
-df11.to_pickle('../data/SPA_FundingBankStat.pkl')
-df12.to_pickle('../data/TransactionLog.pkl')
+path11 = '{0}/Sunpath/static/data/SPA_FundingBankStat.pkl'.format(home)
+path12 = '{0}/Sunpath/static/data/TransactionLog.pkl'.format(home)
+
+df11.to_pickle(path11)
+df12.to_pickle(path12)
