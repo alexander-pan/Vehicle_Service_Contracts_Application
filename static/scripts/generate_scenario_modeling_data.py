@@ -154,7 +154,7 @@ df4 = pd.read_sql(q4,cnxn)
 path = '{0}/Desktop/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
 df4.to_pickle(path)
 
-path = '{0}/Desktop/Sunpath/static/data/ExpectedValue.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/ExpectedValues.pkl'.format(home)
 DF_EXPVAL = pd.read_pickle(path)
 
 def buildCohortTable3(df,fee):
