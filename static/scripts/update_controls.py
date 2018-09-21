@@ -1,8 +1,11 @@
 import pyodbc
 import pandas as pd
 import sys
-sys.path.append('../../../passwords')
-from sunpath_dbcreds import server,database,username,password
+import os
+
+home = os.environ['HOME']
+sys.path.append(home)
+from sunpath_creds.dbcreds import server,database,username,password
 
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
@@ -50,7 +53,8 @@ FUNDERS = {
     'SIMPLICITY': 1
 }
 
-with open('/Users/alexanderpan/Projects/Statusquota/sunpath/application/apps/controls.py','wb') as handle:
+path = '{0}/Sunpath/apps/controls.py'
+with open(path,'wb') as handle:
     handle.write('SELLERS = {\n')
     count = 1
     for k,v in sorted(SELLERS.iteritems()):

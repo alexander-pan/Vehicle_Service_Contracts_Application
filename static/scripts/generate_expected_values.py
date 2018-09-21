@@ -5,18 +5,18 @@ from datetime import datetime as dt, timedelta
 from dateutil.relativedelta import *
 from pandas.tseries.offsets import *
 from collections import OrderedDict
-
-#sys.path.append('../../../passwords')
-from sunpath_dbcreds import server,database,username,password
-
 import sys
 import os
+
+home = os.environ['HOME']
+sys.path.append(home)
+from sunpath_creds.dbcreds import server,database,username,password
+
 sys.path.append('/home/webapp/Sunpath/apps')
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
-home = os.environ['HOME']
 #For App7,9,10
 q4 = """
 with scenario_info as (

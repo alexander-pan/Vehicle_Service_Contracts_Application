@@ -6,11 +6,13 @@ from dateutil.relativedelta import *
 from collections import OrderedDict
 import sys
 import os
-from sunpath_dbcreds import server,database,username,password
+
+home = os.environ['HOME']
+sys.path.append(home)
+from sunpath_creds.dbcreds import server,database,username,password
 
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
-home = os.environ['HOME']
 
 DESCR_KEYS = {
     'Administrator Funding' : 'Deposits',
