@@ -12,7 +12,8 @@ home = os.environ['HOME']
 sys.path.append(home)
 from sunpath_creds.dbcreds import server,database,username,password
 
-sys.path.append('/home/webapp/Sunpath/apps/')
+#sys.path.append('/home/webapp/Sunpath/apps/')
+sys.path.append('{0}/Desktop/Sunpath/apps/'.format(home))
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
