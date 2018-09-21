@@ -238,5 +238,6 @@ exp_df = []
 for i,row in openedDF.iterrows():
     exp_df.append(getProjectedReceivable(row))
 exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
-path = '{0}/Sunpath/static/data/ExpectedValues.pkl'.format(home)
+#path = '{0}/Sunpath/static/data/ExpectedValues.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/ExpectedValues.pkl'.format(home)
 exp_val_df.to_pickle(path)

@@ -92,11 +92,17 @@ df12['Amount'] = df12['TxAmount']*df12['PosOrNegTx']
 df12['Category'] = df12['TxDescription'].apply(lambda x: DESCR_KEYS[x])
 
 #App3 Data Tables
-path1 = '{0}/Sunpath/static/data/SPA_SPBankingStat.pkl'.format(home)
+"""path1 = '{0}/Sunpath/static/data/SPA_SPBankingStat.pkl'.format(home)
 path2 = '{0}/Sunpath/static/data/SPA_SPDepositsStat.pkl'.format(home)
 path3 = '{0}/Sunpath/static/data/SPA_SPPlugStat.pkl'.format(home)
 path4 = '{0}/Sunpath/static/data/SPA_SPPaymentsStat.pkl'.format(home)
-path5 = '{0}/Sunpath/static/data/SPA_Funded_Contracts.pkl'.format(home)
+path5 = '{0}/Sunpath/static/data/SPA_Funded_Contracts.pkl'.format(home)"""
+
+path1 = '{0}/Desktop/Sunpath/static/data/SPA_SPBankingStat.pkl'.format(home)
+path2 = '{0}/Desktop/Sunpath/static/data/SPA_SPDepositsStat.pkl'.format(home)
+path3 = '{0}/Desktop/Sunpath/static/data/SPA_SPPlugStat.pkl'.format(home)
+path4 = '{0}/Desktop/Sunpath/static/data/SPA_SPPaymentsStat.pkl'.format(home)
+path5 = '{0}/Desktop/Sunpath/static/data/SPA_Funded_Contracts.pkl'.format(home)
 
 df1.to_pickle(path1)
 df2.to_pickle(path2)
@@ -105,11 +111,17 @@ df4.to_pickle(path4)
 df5.to_pickle(path5)
 
 #App4 Data Tables
-path6 = '{0}/Sunpath/static/data/Banking_Transaction.pkl'.format(home)
+"""path6 = '{0}/Sunpath/static/data/Banking_Transaction.pkl'.format(home)
 path7 = '{0}/Sunpath/static/data/Plug_Other.pkl'.format(home)
 path8 = '{0}/Sunpath/static/data/Payments.pkl'.format(home)
 path9 = '{0}/Sunpath/static/data/SPF_Premium.pkl'.format(home)
-path10 = '{0}/Sunpath/static/data/Deposits.pkl'.format(home)
+path10 = '{0}/Sunpath/static/data/Deposits.pkl'.format(home)"""
+
+path6 = '{0}/Desktop/Sunpath/static/data/Banking_Transaction.pkl'.format(home)
+path7 = '{0}/Desktop/Sunpath/static/data/Plug_Other.pkl'.format(home)
+path8 = '{0}/Desktop/Sunpath/static/data/Payments.pkl'.format(home)
+path9 = '{0}/Desktop/Sunpath/static/data/SPF_Premium.pkl'.format(home)
+path10 = '{0}/Desktop/Sunpath/static/data/Deposits.pkl'.format(home)
 
 df6.to_pickle(path6)
 df7.to_pickle(path7)
@@ -118,8 +130,11 @@ df9.to_pickle(path9)
 df10.to_pickle(path10)
 
 #App5,6 DataTables
-path11 = '{0}/Sunpath/static/data/SPA_FundingBankStat.pkl'.format(home)
-path12 = '{0}/Sunpath/static/data/TransactionLog.pkl'.format(home)
+"""path11 = '{0}/Sunpath/static/data/SPA_FundingBankStat.pkl'.format(home)
+path12 = '{0}/Sunpath/static/data/TransactionLog.pkl'.format(home)"""
+
+path11 = '{0}/Desktop/Sunpath/static/data/SPA_FundingBankStat.pkl'.format(home)
+path12 = '{0}/Desktop/Sunpath/static/data/TransactionLog.pkl'.format(home)
 
 df11.to_pickle(path11)
 df12.to_pickle(path12)

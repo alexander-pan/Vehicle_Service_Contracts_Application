@@ -53,7 +53,9 @@ FUNDERS = {
     'SIMPLICITY': 1
 }
 
-path = '{0}/Sunpath/apps/controls.py'
+#path = '{0}/Sunpath/apps/controls.py'
+path = '{0}/Desktop/Sunpath/apps/controls.py'
+
 with open(path,'wb') as handle:
     handle.write('SELLERS = {\n')
     count = 1

@@ -36,7 +36,8 @@ select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDat
 """
 df1 = pd.read_sql(q1,cnxn)
 df1.drop_duplicates('PolicyNumber',inplace=True)
-path = '{0}/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
+#path = '{0}/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
 df1.to_pickle(path)
 
 q2 = """
@@ -46,163 +47,9 @@ join dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunP
 """
 
 df2 = pd.read_sql(q2,cnxn)
-path = '{0}/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
+#path = '{0}/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
 df2.to_pickle(path)
-
-def buildCohortTable3(df,fee):
-    dataframe = df.copy()
-
-    #cohort terms
-    term_mix = ['1','2-6','7-12','13-15','16-18','19-24']
-    table = []
-    for terms in term_mix:
-        table.append(getCohortRowStats3(dataframe,fee,terms))
-    columns = ['Installment Terms','Contracts Sold','Seller Advance',
-               'Cancel Reserve','Cancel Reserve %',
-               'Discount Amt', 'Discount Amt %',
-               'Net Amount','Net Amount,Contract']
-    result = pd.DataFrame(table,columns=columns)
-    return result
-
-def getCohortRowStats3(df,fee,cohort):
-    dataframe = df.copy()
-    if cohort == '1':
-        dataframe = df.loc[df.Installments==1]
-    elif cohort == '2-6':
-        dataframe = df.loc[(df.Installments>=2) & (df.Installments<=6)]
-    elif cohort == '7-12':
-        dataframe = df.loc[(df.Installments>=7) & (df.Installments<=12)]
-    elif cohort == '13-15':
-        dataframe = df.loc[(df.Installments>=13) & (df.Installments<=15)]
-    elif cohort == '16-18':
-        dataframe = df.loc[(df.Installments>=16) & (df.Installments<=18)]
-    elif cohort == '19-24':
-        dataframe = df.loc[(df.Installments>=19) & (df.Installments<=24)]
-
-    if not dataframe.empty:
-        D = dataframe.DiscountAmount.mean()
-        H = dataframe.CancelReserveAmount.mean()
-        S = dataframe.SellerAdvanceAmount.mean()
-        Z1 = (D/(H+S))*100
-        Z2 = (H/(H+S))*100
-
-        #values for row
-        N_contracts = dataframe.shape[0]
-        cancel_rsv = round(Z2,2)
-        discount_amt = round(Z1,2)
-        net_amt = round(calcNetHoldback(dataframe,df2,fee,'amount'))
-        net_amt_contract = round(net_amt/N_contracts)
-        row = (cohort,N_contracts,round(S),
-               round(H),cancel_rsv,
-               round(D),discount_amt,
-               net_amt,net_amt_contract)
-        return row
-
-def calcNetHoldback(df1,df2,fee,output):
-    #all completed, cancelled,open contracts
-    holdback = []
-    funder = []
-    for i,row in df1.iterrows():
-        installments = row.PaymentsMade
-        funding_fee = row.DiscountAmount
-        eff_date = row.EffectiveDate
-        vendor = row.SellerName
-        installAmt = row.CurrentInstallmentAmount
-        term = row.Installments
-
-        if row.CancelDate == None:
-            cancel_date = row.LastPaymentDate
-        else:
-            cancel_date = row.CancelDate
-
-        if row.IsCancelled == 1:
-            rate = df2.loc[(df2['SunPathAccountingCode']==TXCODES[vendor][1])
-                       & (df2['Installments']==installments)].CancelPercentage
-        else:
-            rate = 0.0
-
-        day_utilized = (cancel_date-eff_date).days
-
-        VUR = day_utilized/row.TermDays
-        prorated_fee = float(rate * funding_fee)
-        payment_plan_amount = installAmt * term
-        cancel_reserve = row.CancelReserveAmount
-        total_install_rec = installAmt * installments
-        Amt_Owed_SPF = (1-VUR)*row.AdminPortionAmt-fee
-        Amt_Owed_INS = (1-VUR)*row.InsReservePortionAmt
-        deficit = cancel_reserve - payment_plan_amount + Amt_Owed_SPF + Amt_Owed_INS + funding_fee - prorated_fee + total_install_rec
-
-        #if specific contract either cancelled, completed, or open
-        if row.IsCancelled == 1 or row.PaymentsRemaining == 0:
-            deficit = deficit + row.ReturnedPremium
-        elif row.IsCancelled == 0 and row.PaymentsRemaining != 0:
-            deficit = deficit + ExpectedValue(term,installments,installAmt,row)
-        holdback.append(deficit)
-
-    if output=='amount':
-        return np.sum(holdback).round()
-
-def ExpectedValue(N,j,amount,row):
-    value = 0.0
-    value2 = 0.0
-    n = j-1
-    if n % 3 == 0:
-        prev_date = (row.LastPaymentDate + BDay(25)).date()
-    else:
-        prev_date = (row.LastPaymentDate + BDay(20)).date()
-    for i in range(j+1,N+1):
-        p1 = 1.0
-        p2 = 1.0
-        for k in range(j+1,i+1):
-            p1 = p1 * P[N][k]
-
-            if k != i:
-                p2 = p2 * P[N][k]
-            elif k == i:
-                p2 = p2 * (1-P[N][k])
-
-        #value = value + amount * P[N][i]
-        if n % 3 == 0:
-            due_date = (prev_date + BDay(25)).date()
-        else:
-            due_date = (prev_date + BDay(20)).date()
-        prev_date = due_date
-
-        #calculate returned premium
-        num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
-        den = row.TermDays
-        RP = (num/den*row.SellerCost)-50
-        value = value + amount*p1 + RP*p2
-        """if N-i != 0:
-            RP_i = RP*(N-i)/N
-        else:
-            RP_i = 0.0
-        value = value + amount*p1 + RP_i*p2"""
-        #print amount*p1+ RP_i*p2
-        n += 1
-    return value
-
-#Calculate Probability Distributions
-#[installment total, installment paid]
-P = np.zeros((25,25))
-for i in range(1,25):
-    dfn = df1.loc[df1.Installments==i]
-    for j in range(1,25):
-        if i < j:
-            pass
-        else:
-            A = dfn.loc[(dfn.IsCancelled==1)
-                        & (dfn.PaymentsMade==j)].shape[0]
-            B = dfn.loc[dfn.PaymentsMade>=j].shape[0]
-            if B == 0:
-                p = 0.0
-            else:
-                p = A*1.0/B
-            P[i][j] = 1-p
-
-final_result = buildCohortTable3(df1,50)
-path = '{0}/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
-final_result.to_pickle(path)
 
 q3 = """
 SELECT
@@ -215,7 +62,8 @@ WHERE (FTL.CashTx = 1) AND (FTL.PolicyNumber IS NOT NULL)
 ORDER BY FTL.PolicyNumber, FTL.TxDate;
 """
 df3 = pd.read_sql(q3,cnxn)
-path = '{0}/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
+#path = '{0}/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
 df3.to_pickle(path)
 
 q4 = """
@@ -301,54 +149,96 @@ variables as (
 select * from variables;
 """
 df4 = pd.read_sql(q4,cnxn)
-path = '{0}/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
+#path = '{0}/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
 df4.to_pickle(path)
 
-"""def ExpectedValueV2(N,j,amount,row):
-    value = 0.0
-    value2 = 0.0
-    n = j-1
-    if n % 3 == 0:
-        prev_date = (row.LastPaymentDate + BDay(25)).date()
+path = '{0}/Desktop/Sunpath/static/data/ExpectedValue.pkl'.format(home)
+DF_EXPVAL = pd.read_pickle(path)
+
+def buildCohortTable3(df,fee):
+    dataframe = df.copy()
+
+    #cohort terms
+    term_mix = ['1','2-6','7-12','13-15','16-18','19-24']
+    table = []
+    for terms in term_mix:
+        table.append(getCohortRowStats3(dataframe,fee,terms))
+    columns = ['Installment Terms','Contracts Sold','Seller Advance',
+               'Cancel Reserve','Cancel Reserve %',
+               'Discount Amt', 'Discount Amt %',
+               'Net Amount','Net Amount,Contract']
+    result = pd.DataFrame(table,columns=columns)
+    return result
+
+def getCohortRowStats3(df,fee,cohort):
+    dataframe = df.copy()
+    if cohort == '1':
+        dataframe = df.loc[df.Installments==1]
+    elif cohort == '2-6':
+        dataframe = df.loc[(df.Installments>=2) & (df.Installments<=6)]
+    elif cohort == '7-12':
+        dataframe = df.loc[(df.Installments>=7) & (df.Installments<=12)]
+    elif cohort == '13-15':
+        dataframe = df.loc[(df.Installments>=13) & (df.Installments<=15)]
+    elif cohort == '16-18':
+        dataframe = df.loc[(df.Installments>=16) & (df.Installments<=18)]
+    elif cohort == '19-24':
+        dataframe = df.loc[(df.Installments>=19) & (df.Installments<=24)]
+
+    if not dataframe.empty:
+        D = dataframe.DiscountAmount.mean()
+        H = dataframe.CancelReserveAmount.mean()
+        S = dataframe.SellerAdvanceAmount.mean()
+        Z1 = (D/(H+S))*100
+        Z2 = (H/(H+S))*100
+
+        #values for row
+        N_contracts = dataframe.shape[0]
+        cancel_rsv = round(Z2,2)
+        discount_amt = round(Z1,2)
+        net_amt = round(calcNetHoldback(dataframe,fee,'amount'))
+        net_amt_contract = round(net_amt/N_contracts)
+        row = (cohort,N_contracts,round(S),
+               round(H),cancel_rsv,
+               round(D),discount_amt,
+               net_amt,net_amt_contract)
+        return row
+
+def calcNetHoldback(df1,fee,output):
+    #all completed, cancelled contracts
+    holdback = []
+    funder = []
+
+    #dianositc
+    print "calculating..."
+    start = time.time()
+
+    df = df1.copy()
+    df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
+    df['deficit'] = df.CancelReserveAmount - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + df.DiscountAmount - df.prorated_fee
+
+    #we split by adding returned premium for cancelled/completed
+    #or expected values for open contracts
+    opened = df.loc[df.end_contract_amt.isnull()]
+    cancel_comp = df.loc[~df.end_contract_amt.isnull()]
+    opened = opened.copy()
+    cancel_comp = cancel_comp.copy()
+    opened['holdback'] = opened.deficit + [ExpectedValue(x) for x in opened.PolicyNumber]
+    cancel_comp['holdback'] = cancel_comp.deficit + cancel_comp.end_contract_amt
+
+    df = pd.concat([opened,cancel_comp],ignore_index=True)
+
+    if output=='amount':
+        print "calculation complete: %f seconds" % (time.time() - start)
+        return df.holdback.sum().round()
     else:
-        prev_date = (row.LastPaymentDate + BDay(20)).date()
-    for i in range(j+1,N+1):
-        p1 = 1.0
-        p2 = 1.0
-        for k in range(j+1,i+1):
-            p1 = p1 * P[N][k]
+        return "Error"
 
-            if k != i:
-                p2 = p2 * P[N][k]
-            elif k == i:
-                p2 = p2 * (1-P[N][k])
+def ExpectedValue(policy):
+    return DF_EXPVAL.loc[DF_EXPVAL.PolicyNumber==policy].ExpectedValue.values[0]
 
-        #value = value + amount * P[N][i]
-        if n % 3 == 0:
-            due_date = (prev_date + BDay(25)).date()
-        else:
-            due_date = (prev_date + BDay(20)).date()
-        prev_date = due_date
-
-        #calculate returned premium
-        num = (row.TermDays + (row.EffectiveDate - (due_date+relativedelta(days=30))).days)
-        den = row.TermDays
-        RP = (num/den*row.SellerCost)-50
-        value = value + amount*p1 + RP*p2
-        #if N-i != 0:
-        #    RP_i = RP*(N-i)/N
-        #else:
-        #    RP_i = 0.0
-        #value = value + amount*p1 + RP_i*p2
-        #print amount,p1,RP_i,p2, amount*p1 + RP_i*p2
-        n += 1
-    return row.PolicyNumber,round(value,2)
-
-exp_df = []
-for i,row in df1.iterrows():
-    installments = row.PaymentsMade
-    installAmt = row.CurrentInstallmentAmount
-    term = row.Installments
-    exp_df.append(ExpectedValueV2(term,installments,installAmt,row))
-exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
-exp_val_df.to_pickle('../data/ExpectedValues.pkl')"""
+final_result = buildCohortTable3(df4,50)
+#path = '{0}/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
+path = '{0}/Desktop/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
+final_result.to_pickle(path)
