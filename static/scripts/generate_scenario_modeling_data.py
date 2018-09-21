@@ -212,9 +212,6 @@ def calcNetHoldback(df1,fee,output):
     funder = []
 
     #dianositc
-    print "calculating..."
-    start = time.time()
-
     df = df1.copy()
     df['Amt_Owed_SPF'] = df.Amt_Owed_SPF_PreFee - fee
     df['deficit'] = df.CancelReserveAmount - df.payment_plan_amount + df.Amt_Owed_SPF + df.Amt_Owed_INS + df.DiscountAmount - df.prorated_fee
@@ -231,7 +228,6 @@ def calcNetHoldback(df1,fee,output):
     df = pd.concat([opened,cancel_comp],ignore_index=True)
 
     if output=='amount':
-        print "calculation complete: %f seconds" % (time.time() - start)
         return df.holdback.sum().round()
     else:
         return "Error"
