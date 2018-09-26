@@ -12,8 +12,12 @@ home = os.environ['HOME']
 sys.path.append(home)
 from sunpath_creds.dbcreds import server,database,username,password
 
-#sys.path.append('/home/webapp/Sunpath/apps')
-sys.path.append('{0}/Desktop/Sunpath/apps/'.format(home))
+#linode = '/home/webapp/Sunpath/apps/'
+#backup = '/Desktop/Sunpath/apps/'
+local = '/Projects/Statusquota/sunpath/application/apps/'
+#sys.path.append('{0}{1}'.format(home,linode))
+#sys.path.append('{0}{1}'.format(home,backup))
+sys.path.append('{0}{1}'.format(home,local))
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
@@ -239,6 +243,12 @@ exp_df = []
 for i,row in openedDF.iterrows():
     exp_df.append(getProjectedReceivable(row))
 exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
-#path = '{0}/Sunpath/static/data/ExpectedValues.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/ExpectedValues.pkl'.format(home)
+
+#Universal Path
+#linode = '/home/webapp/Sunpath/static/data/'
+#backup = '/Desktop/Sunpath/static/data/'
+local = '/Projects/Statusquota/sunpath/application/static/data/'
+#path = '{0}{1}ExpectedValues.pkl'.format(home,linode)
+#path = '{0}{1}ExpectedValues.pkl'.format(home,backup)
+path = '{0}{1}ExpectedValues.pkl'.format(home,local)
 exp_val_df.to_pickle(path)

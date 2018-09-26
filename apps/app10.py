@@ -747,7 +747,7 @@ def getOutput2(df,dff,fee):
                 net_per_contract = round(net_amt/N_contracts)
             accuring = round(int(N) * net_per_contract)
         table.append((cohort,net_per_contract,accuring))
-    return pd.DataFrame(table,columns=['Installment Terms','Net Amt,Contract','Accuring Net,Month'])
+    return pd.DataFrame(table,columns=['Installment Terms','Net Amt,Contract','Accruing Net,Month'])
 
 #callbacks to update values in layout 2
 @app.callback(Output('total_net_10','value'),

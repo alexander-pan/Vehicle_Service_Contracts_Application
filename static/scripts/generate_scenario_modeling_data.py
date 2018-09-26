@@ -12,12 +12,19 @@ home = os.environ['HOME']
 sys.path.append(home)
 from sunpath_creds.dbcreds import server,database,username,password
 
-#sys.path.append('/home/webapp/Sunpath/apps/')
-sys.path.append('{0}/Desktop/Sunpath/apps/'.format(home))
+#linode = '/home/webapp/Sunpath/apps/'
+#backup = '/Desktop/Sunpath/apps/'
+local = '/Projects/Statusquota/sunpath/application/apps/'
+#sys.path.append('{0}{1}'.format(home,linode))
+#sys.path.append('{0}{1}'.format(home,backup))
+sys.path.append('{0}{1}'.format(home,local))
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+#linode = '/home/webapp/Sunpath/static/data/'
+#backup = '/Desktop/Sunpath/static/data/'
+local = '/Projects/Statusquota/sunpath/application/static/data/'
 #For App7,9,10
 q1 = """
 select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
@@ -37,8 +44,9 @@ select distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDat
 """
 df1 = pd.read_sql(q1,cnxn)
 df1.drop_duplicates('PolicyNumber',inplace=True)
-#path = '{0}/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/Scenario_Modeling_INFO.pkl'.format(home)
+#path = '{0}{1}Scenario_Modeling_INFO.pkl'.format(home,linode)
+#path = '{0}{1}Scenario_Modeling_INFO.pkl'.format(home,backup)
+path = '{0}{1}Scenario_Modeling_INFO.pkl'.format(home,local)
 df1.to_pickle(path)
 
 q2 = """
@@ -48,8 +56,9 @@ join dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunP
 """
 
 df2 = pd.read_sql(q2,cnxn)
-#path = '{0}/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/Funding_Fee_Percents.pkl'.format(home)
+#path = '{0}{1}Funding_Fee_Percents.pkl'.format(home,linode)
+#path = '{0}{1}Funding_Fee_Percents.pkl'.format(home,backup)
+path = '{0}{1}Funding_Fee_Percents.pkl'.format(home,local)
 df2.to_pickle(path)
 
 q3 = """
@@ -63,8 +72,9 @@ WHERE (FTL.CashTx = 1) AND (FTL.PolicyNumber IS NOT NULL)
 ORDER BY FTL.PolicyNumber, FTL.TxDate;
 """
 df3 = pd.read_sql(q3,cnxn)
-#path = '{0}/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/TXLog_Cashflows.pkl'.format(home)
+#path = '{0}{1}TXLog_Cashflows.pkl'.format(home,linode)
+#path = '{0}{1}TXLog_Cashflows.pkl'.format(home,backup)
+path = '{0}{1}TXLog_Cashflows.pkl'.format(home,local)
 df3.to_pickle(path)
 
 q4 = """
@@ -150,11 +160,14 @@ variables as (
 select * from variables;
 """
 df4 = pd.read_sql(q4,cnxn)
-#path = '{0}/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/Scenario_Modeling_Variable_INFO.pkl'.format(home)
+#path = '{0}{1}Scenario_Modeling_Variable_INFO.pkl'.format(home,linode)
+#path = '{0}{1}Scenario_Modeling_Variable_INFO.pkl'.format(home,backup)
+path = '{0}{1}Scenario_Modeling_Variable_INFO.pkl'.format(home,local)
 df4.to_pickle(path)
 
-path = '{0}/Desktop/Sunpath/static/data/ExpectedValues.pkl'.format(home)
+#path = '{0}{1}ExpectedValues.pkl'.format(home,linode)
+#path = '{0}{1}ExpectedValues.pkl'.format(home,backup)
+path = '{0}{1}ExpectedValues.pkl'.format(home,local)
 DF_EXPVAL = pd.read_pickle(path)
 
 def buildCohortTable3(df,fee):
@@ -236,6 +249,7 @@ def ExpectedValue(policy):
     return DF_EXPVAL.loc[DF_EXPVAL.PolicyNumber==policy].ExpectedValue.values[0]
 
 final_result = buildCohortTable3(df4,50)
-#path = '{0}/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
-path = '{0}/Desktop/Sunpath/static/data/SPF_AVERAGE.pkl'.format(home)
+#path = '{0}{1}SPF_AVERAGE.pkl'.format(home,linode)
+#path = '{0}{1}SPF_AVERAGE.pkl'.format(home,backup)
+path = '{0}{1}SPF_AVERAGE.pkl'.format(home,local)
 final_result.to_pickle(path)

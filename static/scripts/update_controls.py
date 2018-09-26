@@ -53,8 +53,12 @@ FUNDERS = {
     'SIMPLICITY': 1
 }
 
-#path = '{0}/Sunpath/apps/controls.py'
-path = '{0}/Desktop/Sunpath/apps/controls.py'
+#linode = '/home/webapp/Sunpath/apps/'
+#backup = '/Desktop/Sunpath/apps/'
+local = '/Projects/Statusquota/sunpath/application/apps/'
+#path = '{0}{1}controls.py'.format(home,linode)
+#path = '{0}{1}controls.py'.format(home,backup)
+path = '{0}{1}controls.py'.format(home,local)
 
 with open(path,'wb') as handle:
     handle.write('SELLERS = {\n')

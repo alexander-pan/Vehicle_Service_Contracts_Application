@@ -785,7 +785,7 @@ def getOutput(df,dff,fee):
                 net_per_contract = round(net_amt/N_contracts)
                 irr = round(getCohortIRR(dataframe,H,D)*100,2)
         table.append((cohort,net_per_contract,irr))
-    return pd.DataFrame(table,columns=['Installment Terms','Net Amount,Contract','Expected IRR %'])
+    return pd.DataFrame(table,columns=['Installment Terms','Net Amount,Contract','Current IRR %'])
 
 """Outputs the results of the live data from cohort table 4"""
 """Used In: update_CohortTable5"""
@@ -835,7 +835,7 @@ def getOutput2(df,dff,fee):
                 irr = round(getCohortIRR(dataframe,H,D)*100,2)
             accuring = round(int(N) * net_per_contract)
         table.append((cohort,net_per_contract,accuring,irr))
-    return pd.DataFrame(table,columns=['Installment Terms','Net Amt,Contract','Accuring Net,Month','Expected IRR %'])
+    return pd.DataFrame(table,columns=['Installment Terms','Net Amt,Contract','Accruing Net,Month','Current IRR %'])
 
 #callbacks to update values in layout 2
 @app.callback(Output('total_net','value'),
