@@ -13,7 +13,7 @@ cursor = cnxn.cursor()
 ######################
 #   Path Variables   #
 ######################
-linode = '/home/webapp/Sunpath/apps/'
+linode = '/Sunpath/apps/'
 path = '{0}{1}controls.py'.format(home,linode)
 
 #local = '/Projects/Statusquota/sunpath/application/apps/'

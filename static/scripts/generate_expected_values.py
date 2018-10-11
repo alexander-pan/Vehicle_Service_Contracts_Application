@@ -12,7 +12,7 @@ home = os.environ['HOME']
 sys.path.append(home)
 from sunpath_creds.dbcreds import server,database,username,password
 
-linode = '/home/webapp/Sunpath/apps/'
+linode = '/Sunpath/apps/'
 sys.path.append('{0}{1}'.format(home,linode))
 
 #local = '/Projects/Statusquota/sunpath/application/apps/'
@@ -26,7 +26,7 @@ cursor = cnxn.cursor()
 #   Path Variables   #
 ######################
 
-linode = '/home/webapp/Sunpath/static/data/'
+linode = '/Sunpath/static/data/'
 path = '{0}{1}ExpectedValues.pkl'.format(home,linode)
 #local = '/Projects/Statusquota/sunpath/application/static/data/'
 #path = '{0}{1}ExpectedValues.pkl'.format(home,local)

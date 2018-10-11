@@ -17,7 +17,7 @@ cursor = cnxn.cursor()
 ######################
 #   Path Variables   #
 ######################
-linode = '/home/webapp/Sunpath/static/data/'
+linode = '/Sunpath/static/data/'
 #local = '/Projects/Statusquota/sunpath/application/static/data/'
 
 #For Linode
