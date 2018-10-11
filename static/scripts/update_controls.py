@@ -62,6 +62,7 @@ FUNDERS = {
     'SIMPLICITY': 1
 }
 
+print 'Saving to %s\n' % path 
 with open(path,'wb') as handle:
     handle.write('SELLERS = {\n')
     count = 1
