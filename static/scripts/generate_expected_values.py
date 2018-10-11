@@ -270,7 +270,7 @@ def getProjectedReceivable(row):
         projected = (last_payment - installPaid) * installment_amt
     return policy,projected,last_payment
 
-openedDF = df4.loc[df4.end_contract_amt.isnull()]
+openedDF = df4.loc[df4.ContractStatus=='Open']
 exp_df = []
 for i,row in openedDF.iterrows():
     exp_df.append(getProjectedReceivable(row))

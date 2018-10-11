@@ -327,7 +327,7 @@ sums all the expected values to get EPR (expected payment received)"""
 """Used In: buildCohortTable(),getCohortRowStats"""
 def getEPRCohort(df):
     expect_values = df.PolicyNumber.apply(ExpectedValue)
-    return expect_values.sum().round()
+    return round(expect_values.sum())
 
 """grabs all the contracts in the cohort range"""
 """Used In: getOutput(),getOutput2() """
@@ -524,7 +524,7 @@ def calcNetHoldbackPerContract(df1,output,cancel_reserve,discount_amt):
 
     cancelled_completed = cancelled_completed.copy()
     opened = opened.copy()
-    
+
     cancelled_completed['Deficit_Surplus'] = (cancelled_completed.PreEndAmt +
                                                 cancelled_completed.end_contract_amt)
     opened['Deficit_Surplus'] = (opened.PreEndAmt +
