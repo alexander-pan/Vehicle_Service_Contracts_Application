@@ -10,6 +10,15 @@ from sunpath_creds.dbcreds import server,database,username,password
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+######################
+#   Path Variables   #
+######################
+linode = '/home/webapp/Sunpath/apps/'
+path = '{0}{1}controls.py'.format(home,linode)
+
+#local = '/Projects/Statusquota/sunpath/application/apps/'
+#path = '{0}{1}controls.py'.format(home,local)
+
 #Create SELLERS Dictionary
 q = """
 select * from dbo.seller_funding_data;
@@ -52,13 +61,6 @@ FUNDERS = {
     'SUNPATH (SPF)': 0,
     'SIMPLICITY': 1
 }
-
-#linode = '/home/webapp/Sunpath/apps/'
-#backup = '/Desktop/Sunpath/apps/'
-local = '/Projects/Statusquota/sunpath/application/apps/'
-#path = '{0}{1}controls.py'.format(home,linode)
-#path = '{0}{1}controls.py'.format(home,backup)
-path = '{0}{1}controls.py'.format(home,local)
 
 with open(path,'wb') as handle:
     handle.write('SELLERS = {\n')

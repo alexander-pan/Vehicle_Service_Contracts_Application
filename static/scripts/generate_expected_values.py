@@ -12,15 +12,24 @@ home = os.environ['HOME']
 sys.path.append(home)
 from sunpath_creds.dbcreds import server,database,username,password
 
-#linode = '/home/webapp/Sunpath/apps/'
-#backup = '/Desktop/Sunpath/apps/'
-local = '/Projects/Statusquota/sunpath/application/apps/'
-#sys.path.append('{0}{1}'.format(home,linode))
-#sys.path.append('{0}{1}'.format(home,backup))
-sys.path.append('{0}{1}'.format(home,local))
+linode = '/home/webapp/Sunpath/apps/'
+sys.path.append('{0}{1}'.format(home,linode))
+
+#local = '/Projects/Statusquota/sunpath/application/apps/'
+#sys.path.append('{0}{1}'.format(home,local))
 from controls import TXCODES,FUNDERS
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
+
+
+######################
+#   Path Variables   #
+######################
+
+linode = '/home/webapp/Sunpath/static/data/'
+path = '{0}{1}ExpectedValues.pkl'.format(home,linode)
+#local = '/Projects/Statusquota/sunpath/application/static/data/'
+#path = '{0}{1}ExpectedValues.pkl'.format(home,local)
 
 #For App7,9,10
 q4 = """
@@ -77,28 +86,51 @@ info as (
 
 calculations as (
   select PolicyNumber,
-  CancelPercentage as rate,
-  datediff(day,EffectiveDate,cancel_date) as day_utilized,
-  datediff(day,EffectiveDate,cancel_date)/TermDays as VUR
+  CancelPercentage as rate
+  --datediff(day,EffectiveDate,cancel_date) as day_utilized,
+  --datediff(day,EffectiveDate,cancel_date)/TermDays as VUR
   from info
 ),
 
 variables as (
-  select t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
-  CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
-  DiscountAmount,CancelReserveAmount,SellerAdvanceAmount,
-  AmountFinanced,PaymentsRemaining,EffectiveDate,TermDays,SellerCost,
+  select t2.PolicyNumber,
+  SellerName,
+  case
+    when IsCancelled=1 then 'Cancelled'
+    when IsCancelled=0 and PaymentsMade < Installments then 'Open'
+    else 'Completed'
+  end as ContractStatus,
+  IsCancelled,
+  FundCo,
+  Installments,
+  CurrentInstallmentAmount,
+  PaymentsMade,
+  ReturnedPremium,
+  DiscountAmount,
+  CancelReserveAmount,
+  SellerAdvanceAmount,
+  AmountFinanced,
+  PaymentsRemaining,
+  EffectiveDate,
+  InsReservePortionAmt,
+  AdminPortionAmt,
+  TermDays,
+  SellerCost,
   case
     when IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
     when IsCancelled=0 and PaymentsRemaining!=0 then null
     else 0.0
   end as end_contract_amt,
   round(rate*DiscountAmount,2) as prorated_fee,
-  day_utilized,VUR,(case when IsCancelled=1 then rate else 0.0 end) as rate,
-  CurrentInstallmentAmount * Installments as payment_plan_amount,
+  --day_utilized,
+  --VUR,
+  (case when IsCancelled=1 then rate else 0.0 end) as rate,
+  --CurrentInstallmentAmount * Installments as payment_plan_amount,
   CurrentInstallmentAmount * PaymentsMade as total_install_rec,
-  round((1-VUR)*AdminPortionAmt,2) as Amt_Owed_SPF_PreFee,
-  round((1-VUR)*InsReservePortionAmt,2) as Amt_Owed_INS
+  --round((1-VUR)*AdminPortionAmt,2) as Amt_Owed_SPF_PreFee,
+  --round((1-VUR)*InsReservePortionAmt,2) as Amt_Owed_INS,
+  round((DiscountAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as DiscountAmountPercent,
+  round((CancelReserveAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as CancelReservePercent
   from scenario_info as t1 inner join calculations as t2
   on t1.PolicyNumber=t2.PolicyNumber
 )
@@ -196,7 +228,7 @@ def getProjectedReceivable(row):
     #set contract specific variables
     policy = row.PolicyNumber
     installPaid = row.PaymentsMade
-    installment_amt = row.CurrentInstallmentAmount - 4.0
+    installment_amt = row.CurrentInstallmentAmount #- 4.0
     term = row.Installments
 
 
@@ -236,19 +268,13 @@ def getProjectedReceivable(row):
         projected = (last_payment - installPaid) * installment_amt + returned_prem
     else:
         projected = (last_payment - installPaid) * installment_amt
-    return policy,projected
+    return policy,projected,last_payment
 
 openedDF = df4.loc[df4.end_contract_amt.isnull()]
 exp_df = []
 for i,row in openedDF.iterrows():
     exp_df.append(getProjectedReceivable(row))
-exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue'])
+exp_val_df = pd.DataFrame(exp_df,columns=['PolicyNumber','ExpectedValue','LastPaymentMade'])
 
-#Universal Path
-#linode = '/home/webapp/Sunpath/static/data/'
-#backup = '/Desktop/Sunpath/static/data/'
-local = '/Projects/Statusquota/sunpath/application/static/data/'
-#path = '{0}{1}ExpectedValues.pkl'.format(home,linode)
-#path = '{0}{1}ExpectedValues.pkl'.format(home,backup)
-path = '{0}{1}ExpectedValues.pkl'.format(home,local)
+print 'Saving to %s' % path
 exp_val_df.to_pickle(path)

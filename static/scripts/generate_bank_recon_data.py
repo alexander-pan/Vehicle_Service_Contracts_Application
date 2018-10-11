@@ -14,6 +14,40 @@ from sunpath_creds.dbcreds import server,database,username,password
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 cursor = cnxn.cursor()
 
+######################
+#   Path Variables   #
+######################
+linode = '/home/webapp/Sunpath/static/data/'
+#local = '/Projects/Statusquota/sunpath/application/static/data/'
+
+#For Linode
+path1 = '{0}{1}SPA_SPBankingStat.pkl'.format(home,linode)
+path2 = '{0}{1}SPA_SPDepositsStat.pkl'.format(home,linode)
+path3 = '{0}{1}SPA_SPPlugStat.pkl'.format(home,linode)
+path4 = '{0}{1}SPA_SPPaymentsStat.pkl'.format(home,linode)
+path5 = '{0}{1}SPA_Funded_Contracts.pkl'.format(home,linode)
+path6 = '{0}{1}Banking_Transaction.pkl'.format(home,linode)
+path7 = '{0}{1}Plug_Other.pkl'.format(home,linode)
+path8 = '{0}{1}Payments.pkl'.format(home,linode)
+path9 = '{0}{1}SPF_Premium.pkl'.format(home,linode)
+path10 = '{0}{1}Deposits.pkl'.format(home,linode)
+path11 = '{0}{1}SPA_FundingBankStat.pkl'.format(home,linode)
+path12 = '{0}{1}TransactionLog.pkl'.format(home,linode)
+
+#For Local
+"""path1 = '{0}{1}SPA_SPBankingStat.pkl'.format(home,local)
+path2 = '{0}{1}SPA_SPDepositsStat.pkl'.format(home,local)
+path3 = '{0}{1}SPA_SPPlugStat.pkl'.format(home,local)
+path4 = '{0}{1}SPA_SPPaymentsStat.pkl'.format(home,local)
+path5 = '{0}{1}SPA_Funded_Contracts.pkl'.format(home,local)
+path6 = '{0}{1}Banking_Transaction.pkl'.format(home,local)
+path7 = '{0}{1}Plug_Other.pkl'.format(home,local)
+path8 = '{0}{1}Payments.pkl'.format(home,local)
+path9 = '{0}{1}SPF_Premium.pkl'.format(home,local)
+path10 = '{0}{1}Deposits.pkl'.format(home,local)
+path11 = '{0}{1}SPA_FundingBankStat.pkl'.format(home,local)
+path12 = '{0}{1}TransactionLog.pkl'.format(home,local)"""
+
 DESCR_KEYS = {
     'Administrator Funding' : 'Deposits',
     'Insurance Reserve Funding' : 'Insurance',
@@ -91,71 +125,38 @@ df12 = pd.read_sql(q12,cnxn)
 df12['Amount'] = df12['TxAmount']*df12['PosOrNegTx']
 df12['Category'] = df12['TxDescription'].apply(lambda x: DESCR_KEYS[x])
 
-#App3 Data Tables
-#linode = '/home/webapp/Sunpath/static/data/'
-#backup = '/Desktop/Sunpath/static/data/'
-local = '/Projects/Statusquota/sunpath/application/static/data/'
-
-#For Linode
-"""path1 = '{0}{1}SPA_SPBankingStat.pkl'.format(home,linode)
-path2 = '{0}{1}SPA_SPDepositsStat.pkl'.format(home,linode)
-path3 = '{0}{1}SPA_SPPlugStat.pkl'.format(home,linode)
-path4 = '{0}{1}SPA_SPPaymentsStat.pkl'.format(home,linode)
-path5 = '{0}{1}SPA_Funded_Contracts.pkl'.format(home,linode)"""
-
-#For BackupComputer
-"""path1 = '{0}{1}SPA_SPBankingStat.pkl'.format(home,backup)
-path2 = '{0}{1}SPA_SPDepositsStat.pkl'.format(home,backup)
-path3 = '{0}{1}SPA_SPPlugStat.pkl'.format(home,backup)
-path4 = '{0}{1}SPA_SPPaymentsStat.pkl'.format(home,backup)
-path5 = '{0}{1}SPA_Funded_Contracts.pkl'.format(home)"""
-
-#For Local
-path1 = '{0}{1}SPA_SPBankingStat.pkl'.format(home,local)
-path2 = '{0}{1}SPA_SPDepositsStat.pkl'.format(home,local)
-path3 = '{0}{1}SPA_SPPlugStat.pkl'.format(home,local)
-path4 = '{0}{1}SPA_SPPaymentsStat.pkl'.format(home,local)
-path5 = '{0}{1}SPA_Funded_Contracts.pkl'.format(home,local)
-
+print 'Saving to %s\n' % path1
 df1.to_pickle(path1)
+
+print 'Saving to %s\n' % path2
 df2.to_pickle(path2)
+
+print 'Saving to %s\n' % path3
 df3.to_pickle(path3)
+
+print 'Saving to %s\n' % path4
 df4.to_pickle(path4)
+
+print 'Saving to %s\n' % path5
 df5.to_pickle(path5)
 
-#App4 Data Tables
-"""path6 = '{0}{1}Banking_Transaction.pkl'.format(home,linode)
-path7 = '{0}{1}Plug_Other.pkl'.format(home,linode)
-path8 = '{0}{1}Payments.pkl'.format(home,linode)
-path9 = '{0}{1}SPF_Premium.pkl'.format(home,linode)
-path10 = '{0}{1}Deposits.pkl'.format(home,linode)"""
-
-"""path6 = '{0}{1}Banking_Transaction.pkl'.format(home,backup
-path7 = '{0}{1}Plug_Other.pkl'.format(home,backup)
-path8 = '{0}{1}Payments.pkl'.format(home,backup)
-path9 = '{0}{1}SPF_Premium.pkl'.format(home,backup)
-path10 = '{0}{1}Deposits.pkl'.format(home,backup)"""
-
-path6 = '{0}{1}Banking_Transaction.pkl'.format(home,local)
-path7 = '{0}{1}Plug_Other.pkl'.format(home,local)
-path8 = '{0}{1}Payments.pkl'.format(home,local)
-path9 = '{0}{1}SPF_Premium.pkl'.format(home,local)
-path10 = '{0}{1}Deposits.pkl'.format(home,local)
+print 'Saving to %s\n' % path6
 df6.to_pickle(path6)
+
+print 'Saving to %s\n' % path7
 df7.to_pickle(path7)
+
+print 'Saving to %s\n' % path8
 df8.to_pickle(path8)
+
+print 'Saving to %s\n' % path9
 df9.to_pickle(path9)
+
+print 'Saving to %s\n' % path10
 df10.to_pickle(path10)
 
-#App5,6 DataTables
-"""path11 = '{0}{1}SPA_FundingBankStat.pkl'.format(home,linode)
-path12 = '{0}{1}TransactionLog.pkl'.format(home,linode)"""
-
-"""path11 = '{0}{1}SPA_FundingBankStat.pkl'.format(home,backup)
-path12 = '{0}{1}TransactionLog.pkl'.format(home,backup)"""
-
-path11 = '{0}{1}SPA_FundingBankStat.pkl'.format(home,local)
-path12 = '{0}{1}TransactionLog.pkl'.format(home,local)
-
+print 'Saving to %s\n' % path11
 df11.to_pickle(path11)
+
+print 'Saving to %s\n' % path12
 df12.to_pickle(path12)
