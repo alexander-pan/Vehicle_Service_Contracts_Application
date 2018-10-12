@@ -30,10 +30,83 @@ In order to access the application the user must navigate to the link listed in 
 The user credentials needed for the test versions for the application are listed below: 
 \begin{enumerate}
 	\item web application address: http://sunpath.statusquota.co
-	\item dummy user email: spfadmn.test@gmail.com
+	\item user email: spfadmn.test@gmail.com
 	\item password: webappP@55
 \end{enumerate}
+This user email also has full permissions for the google oauth client and api dashboard. This shouldn't have to be touched at all. If you want to add emails to the authorized list of emails, the instructions are described below, but all one has to do is add or remove emails from a list. 
 \newpage
+
+\subsection{How to Run and Troubleshoot Application}
+The process of running the application and dashboard will be automated. However, if something happens and it needs to be restarted manually or edited in anyway I will provide basic instructions in this section. The application was written entirely in Python and hosted on a linode linux server.
+
+\subsubsection{Basics, Troubleshooting, and How to Start}
+In order to access the server, one should follow online instructions for ssh. Once you have access if you are on the root user  you can either resume a screen. This command lists available screens and should display the following
+\begin{verbatim}
+root@localhost:~# screen -ls
+There is a screen on:
+550.webapp	(09/12/2018 10:04:17 PM)	(Detached)
+1 Socket in /var/run/screen/S-root.
+\end{verbatim}
+If no screens are listed, then you can start a screen with a name (this example will use the name "test"). You start a new screen proceed to the instructions for navigating to the webapp user in order to access application or start it.
+\begin{verbatim}
+root@localhost:~# screen -S test
+\end{verbatim}
+If you ever have to kill a specific screen, use the command. 
+\begin{verbatim}
+root@localhost:~# screen -X -S test quit
+\end{verbatim}
+However, if you want to resume a screen 
+\begin{verbatim}
+root@localhost:~# screen -r test
+\end{verbatim}
+In order to detach from a screen so it can run in the background just hit "Ctrl + a then d". If you have any issues, I would suggest looking up more instructions online. 
+
+Once you are on the webapp user, you should then navigate to the home directory. 
+\begin{verbatim}
+webapp@localhost:/root$ cd
+\end{verbatim}
+Once in the home directory, you should activate the virtual environment. Below showcases how to do this via command terminal, and the virtual environment should be activated. To ensure this, it will display "(webapp\_env)" to ensure the virtual environment is activated. 
+\begin{verbatim}
+webapp@localhost:~$ source webapp_env/bin/activate
+(webapp_env) webapp@localhost:~$ 
+\end{verbatim}
+In order to activate the application and dashboard, run the following command. 
+\begin{verbatim}
+gunicorn -b 0.0.0.0:8050 --timeout 240 --chdir /home/webapp/Sunpath index:app.server
+\end{verbatim}
+if successful, you should see 
+\begin{verbatim}
+[2018-10-12 15:49:32 +0000] [28455] [INFO] Starting gunicorn 19.9.0
+[2018-10-12 15:49:32 +0000] [28455] [INFO] Listening at: http://0.0.0.0:8050 (28455)
+[2018-10-12 15:49:32 +0000] [28455] [INFO] Using worker: sync
+[2018-10-12 15:49:32 +0000] [28459] [INFO] Booting worker with pid: 28459
+\end{verbatim}
+
+\subsubsection{Adding Emails to Authorized Emails List}
+The authorized email list is located at the path and file
+\begin{verbatim}
+/home/webapp/Sunpath/static/authorized_emails.py
+\end{verbatim}
+To add or remove emails, you just have to include the email listed in the list. 
+
+\subsubsection{Troubleshooting}
+Most of the instructions listed in the previous section can get you to restarting or navigating to the application location. Also, you can terminate the application from root user via command 
+\begin{verbatim}
+pkill gunicorn
+\end{verbatim}
+or navigating to the screen with the dashboard running and terminating it manually "Ctrl + C". 
+
+If the data stops updating for whatever reason, something may have changed database-side. If that is the case the scripts that are used to update the data are located in the following path.
+\begin{verbatim}
+/home/webapp/Sunpath/static/scripts
+\end{verbatim}
+The data is saved to location at 
+\begin{verbatim}
+/home/webapp/Sunpath/static/data
+\end{verbatim}
+
+
+
 \subsection{Plotly/Dash}
 The application foundation uses the python framework known as Dash. Dash uses the Plotly framework for visualizations. It is a web-based interface that is used for building interactive analytical web applications. It uses various UI elements like dropdowns, sliders, and graphs in combination with Python code. This allows for a very powerful tool that can combine web-based applications with coding elements. As a result, it provides a foundation for interactive visualizations in a medium that can be simple, easy to use and learn.  
 
@@ -283,15 +356,15 @@ This section gives the description and calculations for this dashboard's values.
 	\item \% Contracts Sold:  Percent of contracts sold
 	\item Cancel Reserve \%: Cancel reserve amount percent
 	\item Discount Amount \%: Discount amount percent
-	\item Net Amount: The Net Holdback for the installment term cohort
+	\item Net Amount: The net surplus or deficitfor the installment term cohort
 	\item Loss Ratio: $\frac{APR + EPR}{\text{Total Cancel Reserve Amount}}$
-	\item Net Amount, Contract: The net holdback per contract in installment term cohort
+	\item Net Amount, Contract: The net surplus or deficit per contract in installment term cohort
 	\item Current IRR \%: The internal rate of return as a percentage for contracts in the cohort up to their current state (this is not a projection)
-	\item Cumulative Net Deficit/Surplus: The Cumulative Net Holdback amount for the funder, seller group
+	\item Cumulative Net Deficit/Surplus: The Cumulative Net Surplus or Deficit amount for the funder, seller group
 	\item Cumulative Cancel Reserve: The total cancel reserve for the funder, seller group
 	\item Avg. Contracts Sold, Month: The average contracts sold per month for the funder, seller group
 	\item Contracts, Month: This editable field is the number of contracts sold per month to calculate the accuring net holdback per month
-	\item Net Amt, Contract: The net holdback amount on a per contract basis for the installment term cohort
+	\item Net Amt, Contract: The net deficit or surplus amount on a per contract basis for the installment term cohort
 	\item Accruing Net, Month: The accruing net holdback per month based on the net holdback amount per contract
 \end{enumerate}
 The calculations for many of these values will be shown below, as well as the variables used in the calculations:
@@ -301,6 +374,7 @@ The calculations for many of these values will be shown below, as well as the va
 	\item $DueDate$ = the due date of next payment for a contract
 	\item $CancelRsv$ = cancel reserve of a contract
 	\item $SellerCost$ = the seller cost of a contract
+	\item $SellerAdvance$ = seller advance for a contract
 	\item $InstallAmt$ = installment amount for a contract
 	\item $DiscountAmt$ = discount amount of a contract
 	\item $PaymentsMade$ = the total payments paid by customer for a contract
@@ -309,32 +383,32 @@ The calculations for many of these values will be shown below, as well as the va
 	\item $ProbC$ = probability of cancelling
 	\item $RP$ = returned premium (unweighted)
 	\item $Term$ = a contract installment term length
-	\item $fee$ = contract fee (this is found on Page 14 of the Sunpath Workflow Document provided to us)
+	%\item $fee$ = contract fee (this is found on Page 14 of the Sunpath Workflow Document provided to us)
 	\item $AdminFundAmt$ = admin funding amount
 	\item $InsRsvAmt$ = insurance reserve funding amount
 	\item $APR$ = $InstallAmt \times PaymentsMade$ for cohort
 	\item $EPR$ = total expected projected receivable for cohort
-	\item $DayUtilized$ = Cancel Date - Effective Date of a contract in days
-	\item $VUR$ = $\frac{DayUtilized}{TermDays}$
+	%\item $DayUtilized$ = Cancel Date - Effective Date of a contract in days
+	%\item $VUR$ = $\frac{DayUtilized}{TermDays}$
 	\item $VendorRate$ = vendor specific rate
 	\item $ProratedFee$ = $VendorRate \times DiscountAmt$
-	\item $PaymentPlanAmt$ = $InstallAmt \times Term$
+	\item $AmountFinanced$ = amount financed for a contract
 	\item $InstallAmtRec$ = $InstallAmt \times PaymentsMade$, amount received currently for a contract
-	\item $AmtOwedSPF$ = $(1-VUR)(AdminFundAmt) - fee$
-	\item $AmtOwedIns$ = $(1-VUR)(InsRsvAmt)$
+	%\item $AmtOwedSPF$ = $(1-VUR)(AdminFundAmt) - fee$
+	%\item $AmtOwedIns$ = $(1-VUR)(InsRsvAmt)$
 \end{enumerate}
-The main calculation for $NetHoldback$ is different, depending on if a contract cancels or completes:
+The main calculation for $NetSurplusDeficit$ is different, depending on if a contract cancels or completes:
 \begin{equation}
 \begin{split}
-NetHoldback = Total + ReturnedPremium
+NetSurplusDeficit = Total + ReturnedPremium
 \end{split}
 \end{equation}
 where $Total$ and $ReturnedPremium$ is defined as
 \begin{equation}
 	\begin{split}
-	Total &= CancelRsv - PaymentPlanAmt + AmtOwedSPF\\
-	&+ AmtOwedIns + DiscountAmt - ProratedFee\\
-	&+ InstallAmtRec 
+	SellerAdvance &= AmountFinanced - (SellerCost + DiscountAmt + CancelRsv)\\
+	Total &= -(AdminFundAmt + InsRsvAmt\\
+	&+ SellerAdvance + ProratedFee - InstallAmtRec)
 	\end{split}
 \end{equation}
 \begin{equation}
@@ -370,9 +444,6 @@ The other value/column calculations are:
 \end{equation}
 \begin{equation}
 \text{Discount Amt \%} = \frac{D}{H+S}
-\end{equation}
-\begin{equation}
-content...
 \end{equation}
 where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller advance amount across the cohort, and $D$ is the mean discount amount across the cohort.
 %---------------------------------------------------------------------------
@@ -492,21 +563,40 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	),
 	
 	variables as (
-	SELECT t2.PolicyNumber,SellerName,IsCancelled,FundCo,Installments,
-	CurrentInstallmentAmount,PaymentsMade,ReturnedPremium,
-	DiscountAmount,CancelReserveAmount,SellerAdvanceAmount,
-	AmountFinanced,PaymentsRemaining,EffectiveDate,TermDays,SellerCost,
+	SELECT 
+	t2.PolicyNumber,
+	SellerName,
 	CASE
-		WHEN IsCancelled=1 OR PaymentsRemaining=0 then ReturnedPremium
-		WHEN IsCancelled=0 AND PaymentsRemaining!=0 then null
+		WHEN IsCancelled=1 then 'Cancelled'
+		WHEN IsCancelled=0 and PaymentsMade < Installments then 'Open'
+		ELSE 'Completed'
+	end as ContractStatus,
+	IsCancelled,
+	FundCo,
+	Installments,
+	CurrentInstallmentAmount,
+	PaymentsMade,
+	ReturnedPremium,
+	DiscountAmount,
+	CancelReserveAmount,
+	SellerAdvanceAmount,
+	AmountFinanced,
+	PaymentsRemaining,
+	EffectiveDate,
+	InsReservePortionAmt,
+	AdminPortionAmt,
+	TermDays,
+	SellerCost,
+	CASE
+		WHEN IsCancelled=1 or PaymentsRemaining=0 then ReturnedPremium
+		WHEN IsCancelled=0 and PaymentsRemaining!=0 then null
 		ELSE 0.0
 	END as end_contract_amt,
 	ROUND(rate*DiscountAmount,2) as prorated_fee,
-	day_utilized,VUR,(case when IsCancelled=1 then rate else 0.0 end) as rate,
-	CurrentInstallmentAmount * Installments as payment_plan_amount,
+	(CASE WHEN IsCancelled=1 THEN rate ELSE 0.0 end)  as rate,
 	CurrentInstallmentAmount * PaymentsMade as total_install_rec,
-	ROUND((1-VUR)*AdminPortionAmt,2) as Amt_Owed_SPF_PreFee,
-	ROUND((1-VUR)*InsReservePortionAmt,2) as Amt_Owed_INS
+	ROUND((DiscountAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as DiscountAmountPercent,
+	ROUND((CancelReserveAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as CancelReservePercent
 	FROM scenario_info as t1 inner JOIN calculations as t2
 	ON t1.PolicyNumber=t2.PolicyNumber
 	)
@@ -517,11 +607,30 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	The Funding Fee Percents query:
 	\label{appendix:sql4}
 	\begin{verbatim}
-	SELECT SunPathAccountingCode, Installments,DiscountPercentage,
-	CancelPercentage,FlatCancelFee,ReservePercentage 
+	funding_fees as (
+	SELECT SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
 	FROM dbo.seller_info_funding_approved_partners as df1
-	JOIN dbo.seller_info_funding_parameters as df3 
-	ON df1.SunPathSellerCode=df3.SunPathSellerCode;
+	JOIN dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunPathSellerCode
+	),
+	
+	txcodes as (
+	SELECT distinct SunPathSellerCode,SunPathAccountingCode,SellerName
+	FROM dbo.daily_extract as t1
+	JOIN dbo.seller_funding_data as t2
+	ON t1.PolicyNumber = t2.PolicyNumber
+	JOIN dbo.seller_info_funding_approved_partners as t3
+	ON t1.sellercode = t3.paylinksellercode
+	),
+	
+	rates as (
+	SELECT SellerName,
+	Installments,
+	CancelPercentage
+	FROM funding_fees
+	INNER JOIN txcodes on funding_fees.SunPathAccountingCode = txcodes.SunPathAccountingCode
+	)
+	
+	select * from rates order by SellerName,Installments;
 	\end{verbatim}
 	The Daily Cashflows Transaction Log query:
 	\label{appendix:sql5}
