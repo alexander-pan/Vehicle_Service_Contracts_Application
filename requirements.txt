@@ -1,7 +1,7 @@
 certifi==2018.4.16
 chardet==3.0.4
 click==6.7
-dash==0.19.0
+dash==0.20.0
 dash-auth==1.0.2
 dash-core-components==0.21.0rc1
 dash-html-components==0.8.0
@@ -32,7 +32,7 @@ pandas==0.22.0
 pandas-datareader==0.3.0.post0
 plotly==2.0.10
 PuLP==1.6.8
-pyodbc==4.0.22
+#pyodbc==4.0.22
 pyparsing==2.2.0
 python-dateutil==2.7.3
 pytz==2018.4
@@ -45,5 +45,4 @@ six==1.11.0
 traitlets==4.3.2
 urllib3==1.22
 URLObject==2.4.3
-uWSGI==2.0.17
 Werkzeug==0.14.1
