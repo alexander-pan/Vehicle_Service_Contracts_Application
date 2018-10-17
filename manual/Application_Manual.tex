@@ -114,7 +114,7 @@ if successful, you should see
 \subsubsection{Adding Emails to Authorized Emails List}
 The authorized email list is located at the path and file
 \begin{verbatim}
-/home/webapp/Sunpath/static/authorized_emails.py
+/home/sunpath_tech/Sunpath/static/authorized_emails.py
 \end{verbatim}
 To add or remove emails, you just have to include the email listed in the list. 
 
@@ -127,11 +127,11 @@ or navigating to the screen with the application running and terminating it manu
 
 If the data stops updating for whatever reason, something may have changed database-side. If that is the case the scripts that are used to update the data are located in the following path.
 \begin{verbatim}
-/home/webapp/Sunpath/static/scripts
+/home/sunpath_tech/Sunpath/static/scripts
 \end{verbatim}
 The data is saved to location at 
 \begin{verbatim}
-/home/webapp/Sunpath/static/data
+/home/sunpath_tech/Sunpath/static/data
 \end{verbatim}
 
 If the automation doesn't seem correct or needs adjusting, you can adjust the crontabs in the sunpath\_tech and root user account. The times for updating the data are between 12-4am. You can access the crontabs via 
@@ -140,14 +140,14 @@ crontab -e
 \end{verbatim}
 and you will see for the webapp user
 \begin{verbatim}
-0 0 * * *       /home/webapp/webapp_env/bin/python 
-/home/webapp/Sunpath/static/scripts/update_controls.py
-2 0 * * *       /home/webapp/webapp_env/bin/python 
-/home/webapp/Sunpath/static/scripts/generate_expected_values.py
-0 3 * * *       /home/webapp/webapp_env/bin/python 
-/home/webapp/Sunpath/static/scripts/generate_scenario_modeling_data.py
-#30 3 * * *     /home/webapp/webapp_env/bin/python 
-/home/webapp/Sunpath/static/scripts/generate_bank_recon_data.py
+0 0 * * *       /home/sunpath_tech/webapp_env/bin/python 
+/home/sunpath_tech/Sunpath/static/scripts/update_controls.py
+2 0 * * *       /home/sunpath_tech/webapp_env/bin/python 
+/home/sunpath_tech/Sunpath/static/scripts/generate_expected_values.py
+0 3 * * *       /home/sunpath_tech/webapp_env/bin/python 
+/home/sunpath_tech/Sunpath/static/scripts/generate_scenario_modeling_data.py
+#30 3 * * *     /home/sunpath_tech/webapp_env/bin/python 
+/home/sunpath_tech/Sunpath/static/scripts/generate_bank_recon_data.py
 #0 * * * *      bash /root/application_script.sh 
 \end{verbatim}
 and for the root user
