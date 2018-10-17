@@ -39,7 +39,36 @@ This user email also has full permissions for the google oauth client and api da
 \subsection{How to Run and Troubleshoot Application}
 The process of running the application and dashboard will be automated. However, if something happens and it needs to be restarted manually or edited in anyway I will provide basic instructions in this section. The application was written entirely in Python and hosted on a linode linux server.
 
-\subsubsection{Basics, Troubleshooting, and How to Start}
+\subsubsection{Running Bash Script}
+If something goes wrong and the application is not running, go into the root user. First, ensure the named "webapp" screen is listed. You should see the list of screens, similiar to below, available using the following command
+\begin{verbatim}
+root@localhost:~# screen -ls
+There is a screen on:
+1063.webapp	(10/16/2018 04:00:00 AM)	(Detached)
+1 Socket in /var/run/screen/S-root.
+\end{verbatim}
+If this is the output proceed with running the bash script
+\begin{verbatim}
+root@localhost:~# bash application_script.sh
+\end{verbatim}
+This will quit the current window and create a new window with the name "webapp" and will run the application. The name for the screen must be "webapp" in order for the automation to work correctly.
+
+However, if the screen does not exist and you get 
+\begin{verbatim}
+root@localhost:~# screen -ls
+No Sockets found in /var/run/screen/S-root.
+\end{verbatim}
+Then create a detached screen called webapp and then run the bash script using the following commands to restart the server. If there are any other issues, the following section goes into step-by-step directions on how to access the application and run it manually. 
+\begin{verbatim}
+root@localhost:~# screen -dmS webapp 
+root@localhost:~# screen -ls
+There is a screen on:
+4481.webapp	(10/16/2018 06:01:15 PM)	(Detached)
+1 Socket in /var/run/screen/S-root.
+root@localhost:~# bash application_script.sh 
+\end{verbatim}
+
+\subsubsection{Basics and Troubleshooting}
 In order to access the server, one should follow online instructions for ssh. Once you have access if you are on the root user  you can either resume a screen. This command lists available screens and should display the following
 \begin{verbatim}
 root@localhost:~# screen -ls
@@ -61,18 +90,18 @@ root@localhost:~# screen -r test
 \end{verbatim}
 In order to detach from a screen so it can run in the background just hit "Ctrl + a then d". If you have any issues, I would suggest looking up more instructions online. 
 
-Once you are on the webapp user, you should then navigate to the home directory. 
+Once you are on the sunpath\_tech user, you should then navigate to the home directory. 
 \begin{verbatim}
-webapp@localhost:/root$ cd
+sunpath_tech@localhost:/root$ cd
 \end{verbatim}
 Once in the home directory, you should activate the virtual environment. Below showcases how to do this via command terminal, and the virtual environment should be activated. To ensure this, it will display "(webapp\_env)" to ensure the virtual environment is activated. 
 \begin{verbatim}
-webapp@localhost:~$ source webapp_env/bin/activate
-(webapp_env) webapp@localhost:~$ 
+sunpath_tech@localhost:~$ source webapp_env/bin/activate
+(webapp_env) sunpath_tech@localhost:~$ 
 \end{verbatim}
-In order to activate the application and dashboard, run the following command. 
+In order to activate the application and dashboard, run the following command into the console.
 \begin{verbatim}
-gunicorn -b 0.0.0.0:8050 --timeout 240 --chdir /home/webapp/Sunpath index:app.server
+gunicorn -b 0.0.0.0:8050 --timeout 240 --chdir /home/sunpath_tech/Sunpath index:app.server
 \end{verbatim}
 if successful, you should see 
 \begin{verbatim}
@@ -89,12 +118,12 @@ The authorized email list is located at the path and file
 \end{verbatim}
 To add or remove emails, you just have to include the email listed in the list. 
 
-\subsubsection{Troubleshooting}
+\subsubsection{Other Important Information}
 Most of the instructions listed in the previous section can get you to restarting or navigating to the application location. Also, you can terminate the application from root user via command 
 \begin{verbatim}
 pkill gunicorn
 \end{verbatim}
-or navigating to the screen with the dashboard running and terminating it manually "Ctrl + C". 
+or navigating to the screen with the application running and terminating it manually "Ctrl + C". 
 
 If the data stops updating for whatever reason, something may have changed database-side. If that is the case the scripts that are used to update the data are located in the following path.
 \begin{verbatim}
@@ -105,7 +134,26 @@ The data is saved to location at
 /home/webapp/Sunpath/static/data
 \end{verbatim}
 
-
+If the automation doesn't seem correct or needs adjusting, you can adjust the crontabs in the sunpath\_tech and root user account. The times for updating the data are between 12-4am. You can access the crontabs via 
+\begin{verbatim}
+crontab -e
+\end{verbatim}
+and you will see for the webapp user
+\begin{verbatim}
+0 0 * * *       /home/webapp/webapp_env/bin/python 
+/home/webapp/Sunpath/static/scripts/update_controls.py
+2 0 * * *       /home/webapp/webapp_env/bin/python 
+/home/webapp/Sunpath/static/scripts/generate_expected_values.py
+0 3 * * *       /home/webapp/webapp_env/bin/python 
+/home/webapp/Sunpath/static/scripts/generate_scenario_modeling_data.py
+#30 3 * * *     /home/webapp/webapp_env/bin/python 
+/home/webapp/Sunpath/static/scripts/generate_bank_recon_data.py
+#0 * * * *      bash /root/application_script.sh 
+\end{verbatim}
+and for the root user
+\begin{verbatim}
+0 4 * * * bash application_script.sh
+\end{verbatim}
 
 \subsection{Plotly/Dash}
 The application foundation uses the python framework known as Dash. Dash uses the Plotly framework for visualizations. It is a web-based interface that is used for building interactive analytical web applications. It uses various UI elements like dropdowns, sliders, and graphs in combination with Python code. This allows for a very powerful tool that can combine web-based applications with coding elements. As a result, it provides a foundation for interactive visualizations in a medium that can be simple, easy to use and learn.  
