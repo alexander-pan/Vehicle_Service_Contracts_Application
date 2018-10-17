@@ -14,7 +14,6 @@ from authorized_emails import authorized_emails
 #test local
 import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-#authorized_emails = ["alex.pan@statusquota.co","avpan090@gmail.com"]
 
 #Setup App
 server = Flask(__name__)
