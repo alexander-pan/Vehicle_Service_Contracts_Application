@@ -101,7 +101,7 @@ sunpath_tech@localhost:~$ source webapp_env/bin/activate
 \end{verbatim}
 In order to activate the application and dashboard, run the following command into the console.
 \begin{verbatim}
-gunicorn -b 0.0.0.0:8050 --timeout 240 --chdir /home/webapp/Sunpath index:app.server
+gunicorn -b 0.0.0.0:8050 --timeout 240 --chdir /home/sunpath_tech/Sunpath index:app.server
 \end{verbatim}
 if successful, you should see 
 \begin{verbatim}
