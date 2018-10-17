@@ -22,7 +22,7 @@ server = Flask(__name__)
 app = dash.Dash(__name__,server=server,url_base_pathname='/')
 auth = GoogleOAuth(app, authorized_emails)
 app.css.append_css({"external_url":"static/dashboard.css"})
-app.config.suppress_callback_exceptions = True
+app.config.supress_callback_exceptions = True
 
 @server.route("/")
 def MyDashApp():
