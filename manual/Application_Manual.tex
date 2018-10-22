@@ -134,11 +134,11 @@ The data is saved to location at
 /home/sunpath_tech/Sunpath/static/data
 \end{verbatim}
 
-If the automation doesn't seem correct or needs adjusting, you can adjust the crontabs in the sunpath\_tech and root user account. The times for updating the data are between 12-4am. You can access the crontabs via 
+If the automation doesn't seem correct or needs adjusting, you can adjust the crontabs in the sunpath\_tech and root user account. The times for updating the data are between 12-4am. You can access the crontabs via the command
 \begin{verbatim}
 crontab -e
 \end{verbatim}
-and you will see for the webapp user
+The webapp user's crontab is shown below. It runs the scripts to update controls like sellers, funders, and any other variables and definitions, expected values for forecasting, scenario modeling tables and data, and bank reconcillation tables and data. /textbf(The bank reconcillation script is currently commented out because the SPAdmin database is not located in the database location. So once it is available, all someone has to do is go in and uncomment it out to run.) 
 \begin{verbatim}
 0 0 * * *       /home/sunpath_tech/webapp_env/bin/python 
 /home/sunpath_tech/Sunpath/static/scripts/update_controls.py
@@ -148,9 +148,8 @@ and you will see for the webapp user
 /home/sunpath_tech/Sunpath/static/scripts/generate_scenario_modeling_data.py
 #30 3 * * *     /home/sunpath_tech/webapp_env/bin/python 
 /home/sunpath_tech/Sunpath/static/scripts/generate_bank_recon_data.py
-#0 * * * *      bash /root/application_script.sh 
 \end{verbatim}
-and for the root user
+The root user crontab runs the script that was mentioned in a previous section. It resets the application at 4am in order to use the new updated data.
 \begin{verbatim}
 0 4 * * * bash application_script.sh
 \end{verbatim}

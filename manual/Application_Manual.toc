@@ -6,7 +6,7 @@
 \contentsline {subsubsection}{\numberline {1.2.3}Adding Emails to Authorized Emails List}{6}
 \contentsline {subsubsection}{\numberline {1.2.4}Other Important Information}{6}
 \contentsline {subsection}{\numberline {1.3}Plotly/Dash}{7}
-\contentsline {subsection}{\numberline {1.4}Navigation}{7}
+\contentsline {subsection}{\numberline {1.4}Navigation}{8}
 \contentsline {subsection}{\numberline {1.5}Data Collection and Information}{8}
 \contentsline {subsection}{\numberline {1.6}Plot/Graph Visuals and Features}{9}
 \contentsline {subsection}{\numberline {1.7}Table Visuals and Features}{9}
