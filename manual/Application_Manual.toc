@@ -1,38 +1,38 @@
 \contentsline {section}{\numberline {1}Introduction}{3}
 \contentsline {subsection}{\numberline {1.1}Access Information}{3}
-\contentsline {subsection}{\numberline {1.2}How to Run and Troubleshoot Application}{4}
-\contentsline {subsubsection}{\numberline {1.2.1}Running Bash Script}{4}
-\contentsline {subsubsection}{\numberline {1.2.2}Basics and Troubleshooting}{5}
-\contentsline {subsubsection}{\numberline {1.2.3}Adding Emails to Authorized Emails List}{6}
-\contentsline {subsubsection}{\numberline {1.2.4}Other Important Information}{6}
-\contentsline {subsection}{\numberline {1.3}Plotly/Dash}{7}
-\contentsline {subsection}{\numberline {1.4}Navigation}{8}
-\contentsline {subsection}{\numberline {1.5}Data Collection and Information}{8}
-\contentsline {subsection}{\numberline {1.6}Plot/Graph Visuals and Features}{9}
-\contentsline {subsection}{\numberline {1.7}Table Visuals and Features}{9}
-\contentsline {section}{\numberline {2}Admin Bank Reconcillation}{10}
-\contentsline {subsection}{\numberline {2.1}Summary}{10}
-\contentsline {subsubsection}{\numberline {2.1.1}How to Use}{10}
-\contentsline {subsubsection}{\numberline {2.1.2}Value Definitions}{10}
-\contentsline {subsection}{\numberline {2.2}Details}{11}
-\contentsline {subsubsection}{\numberline {2.2.1}How to Use}{11}
-\contentsline {subsubsection}{\numberline {2.2.2}Value Definitions}{12}
-\contentsline {section}{\numberline {3}Funder Bank Reconcillation}{12}
-\contentsline {subsection}{\numberline {3.1}Summary}{12}
-\contentsline {subsubsection}{\numberline {3.1.1}How to Use}{12}
-\contentsline {subsection}{\numberline {3.2}Value Definition}{13}
-\contentsline {subsection}{\numberline {3.3}Details}{13}
-\contentsline {subsubsection}{\numberline {3.3.1}How to Use}{13}
-\contentsline {subsubsection}{\numberline {3.3.2}Value Definitions}{14}
-\contentsline {section}{\numberline {4}Scenario Modeling}{15}
-\contentsline {subsection}{\numberline {4.1}Summary}{15}
-\contentsline {subsubsection}{\numberline {4.1.1}How to Use}{15}
-\contentsline {subsubsection}{\numberline {4.1.2}Visuals and Plots}{16}
-\contentsline {subsubsection}{\numberline {4.1.3}Value Definitions and Calculations}{17}
-\contentsline {subsection}{\numberline {4.2}Admin and Vendor Details}{18}
-\contentsline {subsubsection}{\numberline {4.2.1}How to Use}{18}
-\contentsline {subsubsection}{\numberline {4.2.2}Values Definitions and Calculations}{20}
-\contentsline {section}{\numberline {A}SQL Queries}{24}
-\contentsline {subsection}{\numberline {A.1}Bank Reconcillation Admin Details}{24}
-\contentsline {subsection}{\numberline {A.2}Bank Reconcillation Funder Summary and Details}{24}
-\contentsline {subsection}{\numberline {A.3}Scenario Modeling Summary and Details}{24}
+\contentsline {subsection}{\numberline {1.2}How to Run and Troubleshoot Application}{5}
+\contentsline {subsubsection}{\numberline {1.2.1}Running Bash Script}{5}
+\contentsline {subsubsection}{\numberline {1.2.2}Basics and Troubleshooting}{6}
+\contentsline {subsubsection}{\numberline {1.2.3}Adding Emails to Authorized Emails List}{7}
+\contentsline {subsubsection}{\numberline {1.2.4}Other Important Information}{7}
+\contentsline {subsection}{\numberline {1.3}Plotly/Dash}{8}
+\contentsline {subsection}{\numberline {1.4}Navigation}{9}
+\contentsline {subsection}{\numberline {1.5}Data Collection and Information}{9}
+\contentsline {subsection}{\numberline {1.6}Plot/Graph Visuals and Features}{10}
+\contentsline {subsection}{\numberline {1.7}Table Visuals and Features}{10}
+\contentsline {section}{\numberline {2}Admin Bank Reconcillation}{11}
+\contentsline {subsection}{\numberline {2.1}Summary}{11}
+\contentsline {subsubsection}{\numberline {2.1.1}How to Use}{11}
+\contentsline {subsubsection}{\numberline {2.1.2}Value Definitions}{11}
+\contentsline {subsection}{\numberline {2.2}Details}{12}
+\contentsline {subsubsection}{\numberline {2.2.1}How to Use}{12}
+\contentsline {subsubsection}{\numberline {2.2.2}Value Definitions}{13}
+\contentsline {section}{\numberline {3}Funder Bank Reconcillation}{13}
+\contentsline {subsection}{\numberline {3.1}Summary}{13}
+\contentsline {subsubsection}{\numberline {3.1.1}How to Use}{13}
+\contentsline {subsection}{\numberline {3.2}Value Definition}{14}
+\contentsline {subsection}{\numberline {3.3}Details}{14}
+\contentsline {subsubsection}{\numberline {3.3.1}How to Use}{14}
+\contentsline {subsubsection}{\numberline {3.3.2}Value Definitions}{15}
+\contentsline {section}{\numberline {4}Scenario Modeling}{16}
+\contentsline {subsection}{\numberline {4.1}Summary}{16}
+\contentsline {subsubsection}{\numberline {4.1.1}How to Use}{16}
+\contentsline {subsubsection}{\numberline {4.1.2}Visuals and Plots}{17}
+\contentsline {subsubsection}{\numberline {4.1.3}Value Definitions and Calculations}{18}
+\contentsline {subsection}{\numberline {4.2}Admin and Vendor Details}{19}
+\contentsline {subsubsection}{\numberline {4.2.1}How to Use}{19}
+\contentsline {subsubsection}{\numberline {4.2.2}Values Definitions and Calculations}{21}
+\contentsline {section}{\numberline {A}SQL Queries}{25}
+\contentsline {subsection}{\numberline {A.1}Bank Reconcillation Admin Details}{25}
+\contentsline {subsection}{\numberline {A.2}Bank Reconcillation Funder Summary and Details}{25}
+\contentsline {subsection}{\numberline {A.3}Scenario Modeling Summary and Details}{25}
