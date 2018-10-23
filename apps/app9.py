@@ -514,7 +514,7 @@ def calcNetHoldbackPerContract(df1,output,cancel_reserve,discount_amt):
 
     df = df1.copy()
     df['prorated_fee'] = [round(float(x),2) for x in (df.rate * discount_amt)]
-    SellerAdvance = df.AmountFinanced - (df.SellerCost + df.DiscountAmount + df.CancelReserveAmount)
+    SellerAdvance = df.AmountFinanced - (df.SellerCost + discount_amt + cancel_reserve)
     df['PreEndAmt'] = -(df.AdminPortionAmt + df.InsReservePortionAmt +
                      SellerAdvance + df.prorated_fee - df.total_install_rec)
     #we split by adding returned premium for cancelled/completed
