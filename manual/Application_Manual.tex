@@ -37,7 +37,6 @@ The user credentials needed for the test versions for the application are listed
 	\item password: webappP@55
 \end{enumerate}
 This user email also has full permissions for the google oauth client and api dashboard. This shouldn't have to be touched at all. If you want to add emails to the authorized list of emails, the instructions are described below, but all one has to do is add or remove emails from a list. 
-\newpage
 
 \subsection{How to Run and Troubleshoot Application}
 The process of running the application and dashboard will be automated. However, if something happens and it needs to be restarted manually or edited in anyway I will provide basic instructions in this section. The application was written entirely in Python and hosted on a linode linux server.
@@ -538,46 +537,101 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	The Scenario Modeling Info query:
 	\label{appendix:sql3}
 	\begin{verbatim}
-	SELECT distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
-	MAX(de.AmountFinanced) as AmountFinanced,MAX(sfd.TotalSalesPrice) as TotalSalePrice,MAX(de.DiscountAmount) as DiscountAmount,MAX(sfd.SellerCost) as SellerCost,
-	MAX(CancelReserveAmount) as CancelReserveAmount,MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
-	MAX(AdminPortionAmt) as AdminPortionAmt,MAX(InsReservePortionAmt) as InsReservePortionAmt,
-	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,MAX(de.PaymentsMade) as PaymentsMade,MAX(de.PaymentsRemaining) as PaymentsRemaining,
+	SELECT distinct 
+	de.PolicyNumber,
+	de.EffectiveDate,
+	de.CancelDate,
+	de.LastPaymentDate,
+	de.IsCancelled,
+	de.FundCo,
+	sfd.SellerName,
+	MAX(de.AmountFinanced) as AmountFinanced,
+	MAX(sfd.TotalSalesPrice) as TotalSalePrice,
+	MAX(de.DiscountAmount) as DiscountAmount,
+	MAX(sfd.SellerCost) as SellerCost,
+	MAX(CancelReserveAmount) as CancelReserveAmount,
+	MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
+	MAX(AdminPortionAmt) as AdminPortionAmt,
+	MAX(InsReservePortionAmt) as InsReservePortionAmt,
+	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,
+	MAX(de.PaymentsMade) as PaymentsMade,
+	MAX(de.PaymentsRemaining) as PaymentsRemaining,
 	MAX(de.PaymentsMade+de.PaymentsRemaining) as Installments,
-	MAX(sfd.DownPayment) as DownPayment,MAX(de.ReturnedPremium) as ReturnedPremium,MAX(de.ReturnedCommission) as ReturnedCommission,MAX(se.termmonths/12.0*365) as TermDays
+	MAX(sfd.DownPayment) as DownPayment,
+	MAX(de.ReturnedPremium) as ReturnedPremium,
+	MAX(de.ReturnedCommission) as ReturnedCommission,
+	MAX(se.termmonths/12.0*365) as TermDays
 	FROM dbo.daily_extract as de
 	JOIN  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
 	JOIN dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
 	JOIN dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
 	WHERE (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
 	AND (de.PaymentsMade <= afd.installments)
-	GROUP BY de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName;
+	GROUP BY 
+	de.PolicyNumber,
+	de.EffectiveDate,
+	de.CancelDate,
+	de.LastPaymentDate,
+	de.IsCancelled,
+	de.FundCo,
+	sfd.SellerName;
 	\end{verbatim}
 	
 	The Scenario Modeling Info, more in-depth calculations used for calculating Holdback to be more efficient:
 	\label{appendix:sql6}
 	\begin{verbatim}
 	with scenario_info as (
-	SELECT distinct de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName,
-	MAX(de.AmountFinanced) as AmountFinanced,MAX(sfd.TotalSalesPrice) as TotalSalePrice,MAX(de.DiscountAmount) as DiscountAmount,MAX(sfd.SellerCost) as SellerCost,
-	MAX(CancelReserveAmount) as CancelReserveAmount,MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
-	MAX(AdminPortionAmt) as AdminPortionAmt,MAX(InsReservePortionAmt) as InsReservePortionAmt,
-	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,MAX(de.PaymentsMade) as PaymentsMade,MAX(de.PaymentsRemaining) as PaymentsRemaining,
+	SELECT distinct 
+	de.PolicyNumber,
+	de.EffectiveDate,
+	de.CancelDate,
+	de.LastPaymentDate,
+	de.IsCancelled,
+	de.FundCo,
+	sfd.SellerName,
+	MAX(de.AmountFinanced) as AmountFinanced,
+	MAX(sfd.TotalSalesPrice) as TotalSalePrice,
+	MAX(de.DiscountAmount) as DiscountAmount,
+	MAX(sfd.SellerCost) as SellerCost,
+	MAX(CancelReserveAmount) as CancelReserveAmount,
+	MAX(SellerAdvanceAmount) as SellerAdvanceAmount,
+	MAX(AdminPortionAmt) as AdminPortionAmt,
+	MAX(InsReservePortionAmt) as InsReservePortionAmt,
+	MAX(de.CurrentInstallmentAmount) as CurrentInstallmentAmount,
+	MAX(de.PaymentsMade) as PaymentsMade,
+	MAX(de.PaymentsRemaining) as PaymentsRemaining,
 	MAX(de.PaymentsMade+de.PaymentsRemaining) as Installments,
-	MAX(sfd.DownPayment) as DownPayment,MAX(de.ReturnedPremium) as ReturnedPremium,MAX(de.ReturnedCommission) as ReturnedCommission,MAX(se.termmonths/12.0*365) as TermDays
+	MAX(sfd.DownPayment) as DownPayment,
+	MAX(de.ReturnedPremium) as ReturnedPremium,
+	MAX(de.ReturnedCommission) as ReturnedCommission,
+	MAX(se.termmonths/12.0*365) as TermDays
 	FROM dbo.daily_extract as de
 	JOIN  dbo.seller_funding_data as sfd on de.policynumber=sfd.policynumber
 	JOIN dbo.admin_funding_data as afd on de.policynumber=afd.policynumber
 	JOIN dbo.stoneeagle_all_customer_info as se on de.policynumber=se.policynumber
 	WHERE (de.PaymentsMade+de.PaymentsRemaining) = afd.installments
 	AND (de.PaymentsMade <= afd.installments)
-	GROUP BY de.PolicyNumber,de.EffectiveDate,de.CancelDate,de.LastPaymentDate,de.IsCancelled,de.FundCo,sfd.SellerName
+	GROUP BY 
+	de.PolicyNumber,
+	de.EffectiveDate,
+	de.CancelDate,
+	de.LastPaymentDate,
+	de.IsCancelled,
+	de.FundCo,
+	sfd.SellerName
 	),
 	
 	funding_fees as (
-	SELECT SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
+	SELECT 
+	SunPathAccountingCode, 
+	Installments,
+	DiscountPercentage,
+	CancelPercentage,
+	FlatCancelFee,
+	ReservePercentage
 	FROM dbo.seller_info_funding_approved_partners as df1
-	JOIN dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunPathSellerCode
+	JOIN dbo.seller_info_funding_parameters as df3 
+	ON df1.SunPathSellerCode=df3.SunPathSellerCode
 	),
 	
 	txcodes as (
@@ -649,8 +703,10 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	ROUND(rate*DiscountAmount,2) as prorated_fee,
 	(CASE WHEN IsCancelled=1 THEN rate ELSE 0.0 end)  as rate,
 	CurrentInstallmentAmount * PaymentsMade as total_install_rec,
-	ROUND((DiscountAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as DiscountAmountPercent,
-	ROUND((CancelReserveAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) as CancelReservePercent
+	ROUND((DiscountAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) 
+	as DiscountAmountPercent,
+	ROUND((CancelReserveAmount/(SellerAdvanceAmount+CancelReserveAmount))*100,2) 
+	as CancelReservePercent
 	FROM scenario_info as t1 inner JOIN calculations as t2
 	ON t1.PolicyNumber=t2.PolicyNumber
 	)
@@ -662,9 +718,16 @@ where $H$ is the mean cancel reserve across the cohort, $S$ is the mean seller a
 	\label{appendix:sql4}
 	\begin{verbatim}
 	funding_fees as (
-	SELECT SunPathAccountingCode, Installments,DiscountPercentage,CancelPercentage,FlatCancelFee,ReservePercentage
+	SELECT 
+	SunPathAccountingCode, 
+	Installments,
+	DiscountPercentage,
+	CancelPercentage,
+	FlatCancelFee,
+	ReservePercentage
 	FROM dbo.seller_info_funding_approved_partners as df1
-	JOIN dbo.seller_info_funding_parameters as df3 on df1.SunPathSellerCode=df3.SunPathSellerCode
+	JOIN dbo.seller_info_funding_parameters as df3 
+	ON df1.SunPathSellerCode=df3.SunPathSellerCode
 	),
 	
 	txcodes as (
